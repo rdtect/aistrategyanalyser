@@ -1,164 +1,153 @@
 import { generateAIResponse } from '$lib/services/aiService';
 import { marked } from 'marked';
 import { sampleChats, type Chat, type Message } from '$lib/data/sampleChats';
-import { writable, derived, get, type Readable } from 'svelte/store';
 
-// Create stores for state management
-const chatsStore = writable<Chat[]>(sampleChats);
-const currentChatIdStore = writable<number>(0);
-const isLoadingStore = writable<boolean>(false);
+// Create reactive state variables
+let chats = $state(sampleChats);
+let currentChatId = $state(0);
+let isLoading = $state(false);
 
-// Create derived stores
-const currentChatStore = derived(
-    [chatsStore, currentChatIdStore],
-    ([$chats, $currentChatId]) => $chats.find(chat => chat.id === $currentChatId)
-);
+// Create a chat store to expose state and methods
+export const chatStore = {
+	// Getters for state
+	get chats() {
+		return chats;
+	},
 
-const messagesStore = derived(
-    currentChatStore,
-    ($currentChat) => $currentChat?.messages || []
-);
+	get currentChatId() {
+		return currentChatId;
+	},
 
-/**
- * Formats a plain text message with markdown
- * @param text - The text to format
- * @returns HTML formatted message
- */
-function formatMessage(text: string): string {
-    try {
-        return marked.parse(text) as string;
-    } catch (error) {
-        console.error('Error parsing markdown:', error);
-        return text;
-    }
-}
+	get isLoading() {
+		return isLoading;
+	},
 
-/**
- * Returns a timestamp string for the current time
- * @returns Formatted timestamp string
- */
-function getTimestamp(): string {
-    return new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
+	// Computed values
+	get currentChat() {
+		return chats.find((chat) => chat.id === currentChatId);
+	},
 
-/**
- * Generates a new message ID for the current chat
- */
-function generateMessageId(): number {
-    const messages = get(messagesStore);
-    return messages.length ? Math.max(...messages.map(m => m.id)) + 1 : 0;
-}
+	get messages() {
+		return this.currentChat?.messages || [];
+	},
 
-/**
- * Switches to a different chat session
- * @param id - ID of the chat to switch to
- */
-function switchChat(id: number): void {
-    currentChatIdStore.set(id);
-}
+	// Setters for state
+	set chats(value) {
+		chats = value;
+	},
 
-/**
- * Handles submission of a new message
- * Adds the user message to the chat and generates an AI response
- * @param messageContent - Content of the user's message
- */
-async function handleMessageSubmit(messageContent: string): Promise<void> {
-    const currentChat = get(currentChatStore);
-    if (!messageContent.trim() || !currentChat) return;
+	set currentChatId(value) {
+		currentChatId = value;
+	},
 
-    // Create user message
-    const userMessage: Message = {
-        id: generateMessageId(),
-        content: messageContent,
-        sender: 'user',
-        timestamp: getTimestamp(),
-        status: 'sending'
-    };
+	set isLoading(value) {
+		isLoading = value;
+	},
 
-    // Update chat with user message
-    const currentChatId = get(currentChatIdStore);
-    chatsStore.update(chats => 
-        chats.map(chat => 
-            chat.id === currentChatId ? { ...chat, messages: [...chat.messages, userMessage] } : chat
-        )
-    );
+	/**
+	 * Formats a plain text message with markdown
+	 */
+	formatMessage(text: string): string {
+		try {
+			return marked.parse(text) as string;
+		} catch (error) {
+			console.error('Error parsing markdown:', error);
+			return text;
+		}
+	},
 
-    isLoadingStore.set(true);
+	/**
+	 * Returns a timestamp string for the current time
+	 */
+	getTimestamp(): string {
+		return new Date().toLocaleTimeString([], {
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	},
 
-    try {
-        const aiResponse = await generateAIResponse(currentChat, messageContent);
-        const formattedResponse = formatMessage(aiResponse);
+	/**
+	 * Generates a new message ID for the current chat
+	 */
+	generateMessageId(): number {
+		return this.messages.length ? Math.max(...this.messages.map((m) => m.id)) + 1 : 0;
+	},
 
-        const aiMessage: Message = {
-            id: generateMessageId(),
-            content: formattedResponse,
-            sender: 'ai',
-            timestamp: getTimestamp(),
-            status: 'sent'
-        };
+	/**
+	 * Switches to a different chat session
+	 */
+	switchChat(id: number): void {
+		currentChatId = id;
+	},
 
-        // Update chat with AI response
-        chatsStore.update(chats => 
-            chats.map(chat => 
-                chat.id === currentChatId ? { ...chat, messages: [...chat.messages, aiMessage] } : chat
-            )
-        );
-    } catch (error) {
-        console.error('Error generating AI response:', error);
-    } finally {
-        isLoadingStore.set(false);
-    }
-}
+	/**
+	 * Handles submission of a new message
+	 */
+	async handleMessageSubmit(messageContent: string): Promise<void> {
+		if (!messageContent.trim() || !this.currentChat) return;
 
-/**
- * Creates a new chat session
- * @param name - Name for the new chat
- */
-function createNewChat(name: string): void {
-    const chats = get(chatsStore);
-    const newChat: Chat = {
-        id: Math.max(...chats.map((c) => c.id)) + 1,
-        name,
-        messages: [],
-        createdAt: new Date().toISOString()
-    };
+		// Create user message
+		const userMessage: Message = {
+			id: this.generateMessageId(),
+			content: messageContent,
+			sender: 'user',
+			timestamp: this.getTimestamp(),
+			status: 'sending'
+		};
 
-    chatsStore.update(chats => [...chats, newChat]);
-    currentChatIdStore.set(newChat.id);
-}
+		// Update chat with user message
+		chats = chats.map((chat) =>
+			chat.id === currentChatId ? { ...chat, messages: [...chat.messages, userMessage] } : chat
+		);
 
-/**
- * Deletes a chat session
- * @param id - ID of the chat to delete
- */
-function deleteChat(id: number): void {
-    const currentId = get(currentChatIdStore);
-    
-    chatsStore.update(chats => chats.filter(chat => chat.id !== id));
-    
-    if (currentId === id) {
-        const updatedChats = get(chatsStore);
-        currentChatIdStore.set(updatedChats[0]?.id || 0);
-    }
-}
+		isLoading = true;
 
-// Export the chatManager with all required properties and methods
-export const chatManager = {
-    // Methods
-    switchChat,
-    handleMessageSubmit,
-    createNewChat,
-    deleteChat,
-    formatMessage,
-    getTimestamp
+		try {
+			const aiResponse = await generateAIResponse(this.currentChat, messageContent);
+			const formattedResponse = this.formatMessage(aiResponse);
+
+			const aiMessage: Message = {
+				id: this.generateMessageId(),
+				content: formattedResponse,
+				sender: 'ai',
+				timestamp: this.getTimestamp(),
+				status: 'sent'
+			};
+
+			// Update chat with AI response
+			chats = chats.map((chat) =>
+				chat.id === currentChatId ? { ...chat, messages: [...chat.messages, aiMessage] } : chat
+			);
+		} catch (error) {
+			console.error('Error generating AI response:', error);
+		} finally {
+			isLoading = false;
+		}
+	},
+
+	/**
+	 * Creates a new chat session
+	 */
+	createNewChat(name: string): void {
+		const newChat: Chat = {
+			id: Math.max(...chats.map((c) => c.id)) + 1,
+			name,
+			messages: [],
+			createdAt: new Date().toISOString()
+		};
+
+		chats = [...chats, newChat];
+		currentChatId = newChat.id;
+	},
+
+	/**
+	 * Deletes a chat session
+	 */
+	deleteChat(id: number): void {
+		chats = chats.filter((chat) => chat.id !== id);
+
+		if (currentChatId === id) {
+			currentChatId = chats[0]?.id || 0;
+		}
+	}
 };
-
-// Export stores separately for reactive access
-export const chats = chatsStore;
-export const currentChatId = currentChatIdStore;
-export const isLoading = isLoadingStore;
-export const messages = messagesStore;
-export const currentChat = currentChatStore;

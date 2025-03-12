@@ -47,7 +47,7 @@
 			<Navigation />
 		</aside>
 		<!-- Main Content -->
-		<main class="overflow-hidden p-4 h-full">
+		<main class="overflow-hidden p-4 h-full m-2">
 			
 				<!-- Route-specific content -->
 				{@render children()}

@@ -2,9 +2,9 @@
  	import { Chat } from '$lib/components/chat';
 </script>
 
-<!-- Common Chat component -->
-<div class="container mx-auto h-[90vh] my-auto  p-4 flex flex-col">
-	<div class="card p-4 flex-1 overflow-hidden">
-		<Chat />
-	</div>
+<!-- Main container with fixed height and auto margins -->
+<div class="container mx-auto p-4">
+    
+        <Chat />
+    
 </div>

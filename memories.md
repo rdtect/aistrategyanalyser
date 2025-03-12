@@ -7,30 +7,65 @@
 
 ## Chat System Architecture
 
-### ChatManager Class
-- Singleton pattern implementation (`chatManager`)
-- Manages all chat-related state and operations
-- Located in: `src/lib/components/chat/Chat.svelte.ts`
+### Component Structure
+- `Chat.svelte`: Main container component
+- `ChatInput.svelte`: Message input handling
+- `ChatSidebar.svelte`: Chat list and navigation
+- `Chat.svelte.ts`: Core business logic and state management
 
 ### State Management
-- `chats`: Array of Chat objects ($state)
-- `currentChatId`: Active chat ID ($state)
-- `isLoading`: Loading state indicator ($state)
-- `currentChat`: Derived state for active chat
-- `messages`: Derived state for current chat messages
+1. Primary Stores (in Chat.svelte.ts):
+   - `chatsStore`: Writable store for all chats
+   - `currentChatIdStore`: Writable store for active chat ID
+   - `isLoadingStore`: Writable store for loading state
+   
+2. Derived Stores:
+   - `currentChatStore`: Derived from chats and currentChatId
+   - `messagesStore`: Derived from currentChat
+
+### Data Flow
+1. User Input Flow:
+   - ChatInput.svelte captures message input
+   - Emits to parent via `onMessageSubmit` prop
+   - Chat.svelte handles submission via `handleMessageSubmit`
+   - Updates chat store with new message
+   - Triggers AI response generation
+
+2. Chat Navigation Flow:
+   - ChatSidebar.svelte displays chat list
+   - Uses `chatManager.switchChat()` for navigation
+   - Updates `currentChatIdStore`
+   - Triggers derived store updates
+
+3. Message Display Flow:
+   - Chat.svelte renders messages from `messagesStore`
+   - Handles auto-scrolling via `$effect`
+   - Formats messages with markdown
+   - Shows loading state during AI responses
+
+### Integration Points
+- AI Service: `$lib/services/aiService`
+- Sample Data: `$lib/data/sampleChats`
+- Markdown Processing: Uses `marked` library
 
 ### Core Operations
-1. Message Handling
-   - Processes both user and AI messages
-   - Supports markdown formatting
-   - Maintains message status ('sending', 'sent')
-   - Generates unique message IDs
+1. Message Handling:
+   - User message creation
+   - AI response generation via aiService
+   - Message formatting with marked library
+   - Auto-scrolling to latest messages
 
-2. Chat Management
-   - Create new chats
-   - Delete existing chats
+2. Chat Management:
+   - Create/delete chats
    - Switch between chats
-   - Preserve chat history
+   - Search functionality (UI prepared)
+   - Chat naming conventions (Brand,Category,Region)
+
+### State Updates
+- Uses Svelte 5 runes ($state, $derived) for reactivity
+- Implements store-based state management
+- Maintains atomic updates for chat modifications
+- Handles loading states during async operations
 
 ### Data Types
 ```typescript
@@ -96,3 +131,113 @@ interface Chat {
 - Chat export functionality
 - User authentication
 - Real-time collaboration features
+
+## Data Flow Diagram
+
+```mermaid
+graph TD
+    %% Components
+    ChatInput[ChatInput.svelte]
+    ChatSidebar[ChatSidebar.svelte]
+    ChatMain[Chat.svelte]
+    ChatManager[Chat.svelte.ts]
+    AIService[aiService]
+    
+    %% Stores
+    subgraph Stores
+        chatsStore[(chatsStore)]
+        currentChatIdStore[(currentChatIdStore)]
+        isLoadingStore[(isLoadingStore)]
+        currentChatStore[(currentChatStore)]
+        messagesStore[(messagesStore)]
+    end
+
+    %% Data Flow - User Input
+    ChatInput -->|onMessageSubmit| ChatMain
+    ChatMain -->|handleMessageSubmit| ChatManager
+    ChatManager -->|update| chatsStore
+    ChatManager -->|set| isLoadingStore
+    ChatManager -->|generateAIResponse| AIService
+    AIService -->|response| ChatManager
+
+    %% Data Flow - Chat Navigation
+    ChatSidebar -->|switchChat| ChatManager
+    ChatManager -->|set| currentChatIdStore
+    
+    %% Store Derivations
+    chatsStore & currentChatIdStore -->|derive| currentChatStore
+    currentChatStore -->|derive| messagesStore
+    
+    %% Display Flow
+    messagesStore -->|render| ChatMain
+    isLoadingStore -->|loading state| ChatMain
+    chatsStore -->|chat list| ChatSidebar
+
+    %% Component Relationships
+    ChatMain -->|parent| ChatInput
+    ChatMain -->|parent| ChatSidebar
+
+    classDef component fill:#f9f,stroke:#333,stroke-width:2px
+    classDef store fill:#bbf,stroke:#333,stroke-width:2px
+    class ChatInput,ChatSidebar,ChatMain,ChatManager component
+    class chatsStore,currentChatIdStore,isLoadingStore,currentChatStore,messagesStore store
+```
+
+### Key Data Flows
+
+1. **Message Input Flow**
+   ```
+   ChatInput.svelte
+   └─> onMessageSubmit()
+       └─> Chat.svelte::handleMessageSubmit()
+           └─> Chat.svelte.ts::handleMessageSubmit()
+               ├─> Update chatsStore
+               ├─> Set isLoadingStore
+               ├─> Call aiService.generateAIResponse()
+               └─> Update chatsStore with AI response
+   ```
+
+2. **Chat Navigation Flow**
+   ```
+   ChatSidebar.svelte
+   └─> chatManager.switchChat()
+       └─> Chat.svelte.ts
+           ├─> Set currentChatIdStore
+           └─> Trigger derived store updates
+               ├─> Update currentChatStore
+               └─> Update messagesStore
+   ```
+
+3. **Store Updates Flow**
+   ```
+   Stores
+   ├─> chatsStore (Writable)
+   ├─> currentChatIdStore (Writable)
+   ├─> isLoadingStore (Writable)
+   ├─> currentChatStore (Derived)
+   │   └─> Derived from: chatsStore + currentChatIdStore
+   └─> messagesStore (Derived)
+       └─> Derived from: currentChatStore
+   ```
+
+4. **Display Update Flow**
+   ```
+   Chat.svelte
+   ├─> Renders messages from messagesStore
+   ├─> Shows loading state from isLoadingStore
+   ├─> Auto-scrolls on message updates
+   └─> Formats messages with marked library
+   ```
+
+### State Management Pattern
+
+```
+ChatManager (Chat.svelte.ts)
+├─> Writable Stores
+│   ├─> chatsStore: Chat[]
+│   ├─> currentChatIdStore: number
+│   └─> isLoadingStore: boolean
+└─> Derived Stores
+    ├─> currentChatStore: Chat
+    └─> messagesStore: Message[]
+```

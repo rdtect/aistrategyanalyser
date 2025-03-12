@@ -35,7 +35,7 @@
 	}
 </script>
 
-<section class="border-surface-200-800 bg-surface-100-900 sticky bottom-0 border-t-[1px] p-4">
+<section class="border-surface-200-800 bg-surface-100-900 sticky bottom-0 border-t-[1px] p-2">
 	<div
 		class="input-group divide-surface-200-800 rounded-container-token w-full grid grid-cols-[auto_1fr_auto] divide-x"
 	>
@@ -45,11 +45,11 @@
 		</div>
 		<form onsubmit={handleSubmit} class="w-full h-full">
 			<textarea
-				class="input resize-none w-full h-full min-h-[40px] max-h-32"
+				class="input resize-none w-full h-full min-h-[24px] max-h-32"
 				placeholder="Type your message..."
 				bind:value={inputValue}
 				onkeydown={handleKeydown}
-				rows="3"
+				rows="2"
 			></textarea>
 		</form>
 		<button
