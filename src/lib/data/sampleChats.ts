@@ -1,5 +1,3 @@
-
-
 //create types for chat and message
 export interface Message {
 	id: number;
@@ -11,6 +9,10 @@ export interface Message {
 
 export interface Chat {
 	id: number;
+	company: string;
+	industry: string;
+	context?: string;
+	region: string;
 	name: string; // Format: Brand,Category,Region
 	messages: Message[];
 	createdAt: string;
@@ -22,7 +24,12 @@ export interface Chat {
 export const sampleChats: Chat[] = [
 	{
 		id: 0,
-		name: 'Nike,Athletic Footwear,North America',
+		company: 'Nike',
+		industry: 'Athletic Footwear',
+		region: 'North America',
+		context:
+			"Analysis of Nike's market position, strengths, and challenges in the North American athletic footwear market.",
+		name: 'Nike | Athletic Footwear | North America',
 		createdAt: '2023-10-15T14:30:00Z',
 		messages: [
 			{
@@ -61,7 +68,10 @@ Would you like more specific information about Nike's competitive landscape, con
 	},
 	{
 		id: 1,
-		name: 'Starbucks,Coffee Shops,Global',
+		company: 'Starbucks',
+		industry: 'Coffee Shops',
+		region: 'Global',
+		name: 'Starbucks | Coffee Shops | Global',
 		createdAt: '2023-10-20T09:15:00Z',
 		messages: [
 			{
@@ -101,7 +111,12 @@ Would you like me to elaborate on any specific trend or region?
 	},
 	{
 		id: 2,
-		name: 'Tesla,Electric Vehicles,Europe',
+		company: 'Tesla',
+		industry: 'Electric Vehicles',
+		region: 'Europe',
+		context:
+			"Analysis of Tesla's performance and competitive position in the European electric vehicle market.",
+		name: 'Tesla | Electric Vehicles | Europe',
 		createdAt: '2023-11-05T16:45:00Z',
 		messages: [
 			{

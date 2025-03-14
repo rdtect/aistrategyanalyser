@@ -1,8 +1,10 @@
 <script lang="ts">
 	// Imports
+	import { AI_MODELS, type AIModel } from '$lib/config/aiModels';
 	import BotIcon from 'lucide-svelte/icons/bot-message-square';
-	import ArrowDown from 'lucide-svelte/icons/arrow-down';
+	import RefreshCw from 'lucide-svelte/icons/refresh-cw';
 	import { Avatar } from '@skeletonlabs/skeleton-svelte';
+	import ArrowDown from 'lucide-svelte/icons/arrow-down';
 	import { marked } from 'marked';
 	import { fade, fly, scale } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
@@ -10,6 +12,10 @@
 	// Component imports
 	import ChatInput from './ChatInput.svelte';
 	import ChatSidebar from './ChatSidebar.svelte';
+	import ModelSelector from './header/ModelSelector.svelte';
+	import ConnectionStatus from './header/ConnectionStatus.svelte';
+	import RefreshButton from './header/RefreshButton.svelte';
+	import Header from './header/Header.svelte';
 
 	// Import the chat store
 	import { chatStore } from './Chat.svelte.ts';
@@ -17,6 +23,9 @@
 
 	// Constants
 	const userName = 'RD';
+
+	// Type-safe model entries
+	const modelEntries: [string, { name: string }][] = Object.entries(AI_MODELS);
 
 	// DOM references and state
 	let elemChat: HTMLElement;
@@ -46,6 +55,8 @@
 		await chatStore.handleMessageSubmit(message);
 		setTimeout(() => scrollChatBottom('smooth'), 100);
 	}
+
+	let {openNewChatModal} = $props();
 </script>
 
 <!-- #snippets section for reusable UI elements -->
@@ -115,7 +126,7 @@
 
 {#snippet scrollButton()}
 	<button
-		class="bg-primary-500 absolute bottom-40 z-10 mx-auto rounded-full p-2 text-white shadow-lg"
+		class="bg-primary-500 absolute bottom-20 z-10 mx-auto rounded-full p-2 text-white shadow-lg"
 		onclick={() => scrollChatBottom('smooth')}
 		aria-label="Scroll to bottom"
 	>
@@ -128,24 +139,13 @@
 	class="border-surface-500 bg-surface-900 flex h-[calc(100vh-13rem)] flex-col rounded-2xl border"
 >
 	<!-- Header bar with info and status -->
-	<div class="border-surface-500 flex items-center justify-between border-b p-3">
-		<div class="flex items-center gap-2 font-semibold text-white">
-			<BotIcon class="h-5 w-5" />
-			<span>AI Chat</span>
-		</div>
-		<div class="flex items-center gap-2">
-			<span class="flex items-center">
-				<span class="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-green-500"></span>
-				<span class="text-sm text-white/70">Active</span>
-			</span>
-		</div>
-	</div>
+	<Header />
 
 	<!-- Main container with sidebar and chat area -->
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar (hidden on mobile) -->
 		<div class="border-surface-500 hidden border-r md:block w-80">
-			<ChatSidebar />
+			<ChatSidebar {openNewChatModal} />
 		</div>
 
 		<!-- Chat area -->

@@ -1,0 +1,612 @@
+{
+	"Market Structure Analysis": [
+		{
+			"id": "ms_1",
+			"question": "What is the current size and growth rate of the market?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a market analyst specializing in industry research and trend forecasting.",
+				"Task Description": "Provide an analysis of the current market size and growth rate within a specified industry. Include key historical trends, growth projections, and any influencing factors.",
+				"Output Format": "A structured report including market size (in revenue or units sold), CAGR, and factors influencing growth.",
+				"Style Guidelines": "Data-driven, professional, and clearly sourced.",
+				"Constraints": "Use only verified sources such as industry reports and market analysis studies.",
+				"Interactivity": "Allow user input to define the industry and geographic scope."
+			}
+		},
+		{
+			"id": "ms_2",
+			"question": "How fast is the market growing, and what are the key drivers behind this trend?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a business intelligence expert analyzing industry growth trends.",
+				"Task Description": "Examine the speed of market growth, identifying primary drivers such as technological advancements, economic conditions, demographic shifts, and regulatory changes.",
+				"Output Format": "An analysis report highlighting growth rate percentages, key drivers, and future projections.",
+				"Style Guidelines": "Professional, concise, and supported by industry data.",
+				"Constraints": "Use only authoritative sources, such as government databases, industry research, and financial reports.",
+				"Interactivity": "Ask for specific industry and region details for tailored insights."
+			}
+		},
+		{
+			"id": "ms_3",
+			"question": "What are the major segments within the market, and how are they evolving?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are an industry segmentation analyst identifying key market divisions and their transformations.",
+				"Task Description": "Break down the industry into its major segments and describe how each is evolving over time. Consider factors such as demand shifts, technological disruptions, and emerging consumer behaviors.",
+				"Output Format": "A segmented market analysis with an evolution trend summary.",
+				"Style Guidelines": "Structured, data-backed, and analytical.",
+				"Constraints": "Base findings on recent industry reports, company filings, and consumer insights.",
+				"Interactivity": "Enable user-defined industry focus for deeper customization."
+			}
+		},
+		{
+			"id": "ms_4",
+			"question": "What are the prevailing trends and emerging technologies influencing the market?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a market trends researcher tracking industry shifts and technological advancements.",
+				"Task Description": "Identify current market trends and emerging technologies shaping the industry. Include factors such as automation, AI, sustainability, and digital transformation.",
+				"Output Format": "A trends report covering key movements and technology disruptions.",
+				"Style Guidelines": "Insightful, future-focused, and evidence-based.",
+				"Constraints": "Rely on validated reports from industry leaders, technology firms, and academic research.",
+				"Interactivity": "Ask for the industry category and time horizon for future projections."
+			}
+		},
+		{
+			"id": "ms_5",
+			"question": "Are there emerging sub-markets or untapped customer segments showing high potential?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are an industry strategist identifying high-potential sub-markets and underserved customer groups.",
+				"Task Description": "Analyze and highlight niche markets or emerging consumer segments that show strong growth potential.",
+				"Output Format": "A structured report featuring potential sub-markets, demand trends, and competitive gaps.",
+				"Style Guidelines": "Exploratory, data-backed, and opportunity-driven.",
+				"Constraints": "Leverage consumer behavior data, demographic trends, and emerging industry reports.",
+				"Interactivity": "Allow users to specify industry and region for deeper insights."
+			}
+		},
+		{
+			"id": "ms_6",
+			"question": "What adjacent categories are beginning to consolidate within this industry, and why?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are an industry mergers and acquisitions analyst tracking market consolidation trends.",
+				"Task Description": "Identify adjacent categories that are merging or converging within the industry, explaining the economic and strategic reasons behind it.",
+				"Output Format": "A structured market analysis detailing industry convergence trends.",
+				"Style Guidelines": "Analytical, structured, and backed by market reports.",
+				"Constraints": "Use only reputable sources such as business intelligence platforms, company reports, and industry research papers.",
+				"Interactivity": "Ask for a specific industry focus for more relevant insights."
+			}
+		},
+		{
+			"id": "ms_7",
+			"question": "What's the market share of the top 5 brands? Is the market fragmented or organized?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive market analyst assessing industry concentration.",
+				"Task Description": "Provide a breakdown of market share among the top 5 industry leaders and analyze whether the market is fragmented or dominated by key players.",
+				"Audience Identification": "Business strategists, investors, and industry analysts.",
+				"Purpose Clarification": "To assess the level of competition and market control within the industry.",
+				"Constraints and Requirements": "Use only validated market research reports, investor relations filings, and industry white papers.",
+				"Source Specification": "Cite sources such as company financial statements, market research firms, and regulatory bodies.",
+				"Output Format": "A structured report with a market share comparison chart.",
+				"Style and Tone Guidelines": "Professional, concise, and heavily data-driven.",
+				"Evidence Linking": "Provide citations for all market share statistics and references.",
+				"Verification Steps": "Cross-check findings with multiple industry reports and financial sources.",
+				"Iterative Refinement": "Allow user input to specify competitors of interest.",
+				"Feedback Incorporation": "Enable further analysis based on initial findings."
+			}
+		},
+		{
+			"id": "ms_8",
+			"question": "What are the typical profit margins within the industry, and how do they compare?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a financial analyst specializing in industry profitability metrics.",
+				"Task Description": "Analyze profit margins across major industry players and compare them to industry benchmarks.",
+				"Output Format": "A financial overview including gross, operating, and net margins.",
+				"Style Guidelines": "Professional, quantitative, and sourced from financial data.",
+				"Constraints": "Use only validated sources such as financial reports, industry benchmarks, and market research.",
+				"Interactivity": "Enable selection of specific competitors or sub-industries for comparison."
+			}
+		},
+		{
+			"id": "ms_9",
+			"question": "How has the category evolved over the last 50 years in terms of products, branding, and communication shifts?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a market historian and brand evolution analyst.",
+				"Task Description": "Analyze the evolution of the industry category over the last 50 years, focusing on product innovation, branding strategies, and changes in communication methods.",
+				"Audience Identification": "Business strategists, marketing professionals, and industry researchers.",
+				"Purpose Clarification": "To provide a comprehensive historical view of how the category has transformed and adapted to market changes.",
+				"Constraints and Requirements": "Ensure insights are supported by historical industry reports, brand archives, and advertising case studies.",
+				"Source Specification": "Utilize sources such as corporate histories, branding archives, and major marketing studies.",
+				"Output Format": "A structured timeline of category evolution, with key milestones in product development, branding shifts, and major marketing changes.",
+				"Style and Tone Guidelines": "Chronological, data-backed, and comparative.",
+				"Evidence Linking": "Provide references for each major shift in the industry.",
+				"Verification Steps": "Validate findings using multiple industry sources and case studies.",
+				"Iterative Refinement": "Allow users to specify a particular sub-category or region for a tailored historical perspective.",
+				"Feedback Incorporation": "Enable refinement based on user-specified focus areas, such as branding trends or digital transformation."
+			}
+		}
+	],
+	"Competitor Profiling & Benchmarking": [
+		{
+			"id": "cp_1",
+			"question": "Who are the main competitors in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive intelligence analyst specializing in market research.",
+				"Task Description": "Identify the major competitors within a specified industry, providing an overview of their presence, size, and influence in the market.",
+				"Output Format": "A structured competitor list including company names, market presence, and key differentiators.",
+				"Style Guidelines": "Concise, factual, and research-backed.",
+				"Constraints": "Ensure all data is based on verified industry reports and company filings.",
+				"Interactivity": "Allow users to specify the industry and geographic scope for tailored insights."
+			}
+		},
+		{
+			"id": "cp_2",
+			"question": "What are their respective market shares, and how have they changed over time?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a market research analyst specializing in competitive market share analysis.",
+				"Task Description": "Provide an analysis of the market shares of the top competitors in a given industry and how their shares have evolved over time.",
+				"Audience Identification": "Business strategists, investors, and industry analysts.",
+				"Purpose Clarification": "To help stakeholders understand market control, industry fragmentation, and competitive shifts.",
+				"Constraints and Requirements": "Use only validated financial reports, industry research, and market share studies.",
+				"Source Specification": "Cite reputable sources such as annual financial reports, market intelligence firms, and government economic data.",
+				"Output Format": "A structured report including historical trends, graphical representations, and competitor rankings.",
+				"Style and Tone Guidelines": "Data-driven, objective, and supported by citations.",
+				"Evidence Linking": "Provide specific references for market share percentages and historical shifts.",
+				"Verification Steps": "Cross-validate market share figures using multiple sources.",
+				"Iterative Refinement": "Allow users to specify competitors or industries of interest.",
+				"Feedback Incorporation": "Enable deeper analysis upon request, such as competitive responses to market changes."
+			}
+		},
+		{
+			"id": "cp_3",
+			"question": "What are their core product offerings or services, and how do they compare?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a product and service benchmarking specialist.",
+				"Task Description": "Analyze the core product or service offerings of key competitors in a given industry, comparing their features, positioning, and market appeal.",
+				"Output Format": "A comparative table or structured report outlining key products/services and their differentiators.",
+				"Style Guidelines": "Objective, comparative, and clearly structured.",
+				"Constraints": "Use only verified product catalogs, competitor websites, and industry analyses.",
+				"Interactivity": "Allow users to define specific competitors or product categories for more detailed analysis."
+			}
+		},
+		{
+			"id": "cp_4",
+			"question": "How does each competitor differentiate themselves in the market?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive positioning analyst examining brand differentiation.",
+				"Task Description": "Identify and describe the key factors that set each competitor apart in the market, such as pricing strategies, brand positioning, innovation, and customer engagement.",
+				"Output Format": "A structured competitor comparison report with differentiation strategies.",
+				"Style Guidelines": "Concise, analytical, and backed by competitor data.",
+				"Constraints": "Rely only on validated market research, branding studies, and competitor disclosures.",
+				"Interactivity": "Allow the user to specify competitors or focus areas such as pricing, branding, or service models."
+			}
+		},
+		{
+			"id": "cp_5",
+			"question": "Which brands are horizontally integrated (diversified offerings), and which are specialists?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a corporate strategy analyst specializing in market positioning.",
+				"Task Description": "Analyze whether the leading brands in the industry are diversified across multiple segments (horizontal integration) or focused on a specialized niche.",
+				"Output Format": "A structured breakdown of horizontally integrated vs. specialist competitors.",
+				"Style Guidelines": "Strategic, analytical, and data-backed.",
+				"Constraints": "Use only verified business reports, financial disclosures, and strategic analyses.",
+				"Interactivity": "Enable customization for industry selection or brand focus."
+			}
+		},
+		{
+			"id": "cp_6",
+			"question": "What are the strengths and weaknesses of each competitor?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive SWOT analyst evaluating industry players.",
+				"Task Description": "Conduct a SWOT (Strengths, Weaknesses, Opportunities, Threats) analysis of the major competitors in the industry.",
+				"Output Format": "A structured SWOT report per competitor.",
+				"Style Guidelines": "Balanced, factual, and backed by strategic data.",
+				"Constraints": "Base findings on market reports, financial statements, and industry benchmarks.",
+				"Interactivity": "Allow users to specify competitors for deeper insights."
+			}
+		},
+		{
+			"id": "cp_7",
+			"question": "How have pricing strategies evolved in response to market and economic factors?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a pricing strategy expert analyzing market trends.",
+				"Task Description": "Investigate how pricing strategies have changed over time due to economic conditions, competition, and consumer behavior shifts.",
+				"Output Format": "A structured report detailing historical pricing trends and strategic shifts.",
+				"Style Guidelines": "Economic, data-driven, and clearly structured.",
+				"Constraints": "Use only verified pricing research, industry reports, and financial disclosures.",
+				"Interactivity": "Enable focus on specific industries or competitors."
+			}
+		},
+		{
+			"id": "cp_8",
+			"question": "What distribution channels do competitors utilize?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a distribution strategy analyst studying competitor supply chains.",
+				"Task Description": "Identify and analyze the distribution channels used by key competitors, including direct-to-consumer, retail, e-commerce, and B2B models.",
+				"Output Format": "A distribution strategy report comparing major players' channel approaches.",
+				"Style Guidelines": "Data-backed, structured, and industry-specific.",
+				"Constraints": "Base findings on corporate disclosures, supply chain reports, and industry analysis.",
+				"Interactivity": "Allow users to select competitors or regions for tailored analysis."
+			}
+		},
+		{
+			"id": "cp_9",
+			"question": "How has brand positioning & messaging evolved over time in response to market trends?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a brand evolution specialist analyzing historical shifts in market messaging.",
+				"Task Description": "Assess how major brands have adjusted their positioning and messaging strategies in response to shifting market trends, cultural shifts, and technological advancements.",
+				"Audience Identification": "Marketing professionals, brand strategists, and industry researchers.",
+				"Purpose Clarification": "To track branding evolution and help businesses adapt their messaging strategies.",
+				"Constraints and Requirements": "Use only validated brand case studies, advertising research, and consumer perception studies.",
+				"Source Specification": "Leverage corporate archives, marketing reports, and advertising databases.",
+				"Output Format": "A structured timeline showing major shifts in brand positioning.",
+				"Style and Tone Guidelines": "Historical, strategic, and research-backed.",
+				"Evidence Linking": "Provide references for key brand changes.",
+				"Verification Steps": "Cross-check findings using multiple brand studies.",
+				"Iterative Refinement": "Allow users to focus on specific brands or time periods.",
+				"Feedback Incorporation": "Enable refinement for deeper analysis."
+			}
+		}
+	],
+	"Customer & Category Insights": [
+		{
+			"id": "ci_1",
+			"question": "What are the key factors influencing customer purchasing decisions in this category?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a consumer behavior analyst specializing in purchasing motivations.",
+				"Task Description": "Identify the primary factors influencing purchasing decisions within a specific industry. Consider emotional, functional, social, and pricing factors.",
+				"Audience Identification": "Marketing strategists, brand managers, and business analysts.",
+				"Purpose Clarification": "To help businesses refine their marketing and product strategies to align with customer decision-making drivers.",
+				"Constraints and Requirements": "Base insights on market research, consumer psychology studies, and survey data.",
+				"Source Specification": "Use validated sources such as industry reports, academic research, and consumer insights studies.",
+				"Output Format": "A structured report summarizing key purchase drivers with supporting data.",
+				"Style and Tone Guidelines": "Professional, analytical, and clearly structured.",
+				"Evidence Linking": "Provide references for cited studies and market data.",
+				"Verification Steps": "Cross-check findings with multiple consumer research reports.",
+				"Iterative Refinement": "Allow user input to specify industry or target demographics.",
+				"Feedback Incorporation": "Enable refinement based on user-specified focus areas such as pricing sensitivity or brand loyalty."
+			}
+		},
+		{
+			"id": "ci_2",
+			"question": "How loyal are customers to existing brands? What affects brand switching?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a brand loyalty and consumer retention specialist.",
+				"Task Description": "Analyze customer loyalty levels in a given industry, identifying key factors that influence brand switching and retention.",
+				"Audience Identification": "Brand managers, customer experience teams, and marketing strategists.",
+				"Purpose Clarification": "To help businesses improve customer retention and develop strategies to mitigate brand switching.",
+				"Constraints and Requirements": "Base analysis on consumer loyalty research, market surveys, and competitive intelligence.",
+				"Source Specification": "Use sources such as industry reports, customer feedback studies, and behavioral research.",
+				"Output Format": "A structured report on customer loyalty metrics and switching factors.",
+				"Style and Tone Guidelines": "Insightful, research-backed, and data-driven.",
+				"Evidence Linking": "Provide supporting citations for loyalty statistics and trends.",
+				"Verification Steps": "Cross-check loyalty data across multiple industry reports.",
+				"Iterative Refinement": "Allow users to specify industries or competitor comparisons.",
+				"Feedback Incorporation": "Enable deeper insights on retention strategies upon request."
+			}
+		},
+		{
+			"id": "ci_3",
+			"question": "What are the prevailing emotional, functional, pricing, and social drivers shaping purchases?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a consumer psychology expert analyzing purchasing motivations.",
+				"Task Description": "Break down the key factors that influence purchasing decisions, categorizing them into emotional, functional, pricing, and social drivers.",
+				"Output Format": "A comparative table or structured analysis detailing each driver and its impact.",
+				"Style Guidelines": "Analytical, structured, and supported by research.",
+				"Constraints": "Use only validated consumer behavior studies and market research data.",
+				"Interactivity": "Allow the user to define a specific product category or demographic focus."
+			}
+		},
+		{
+			"id": "ci_4",
+			"question": "What unmet needs or pain points do customers have with existing products/services?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a customer experience analyst identifying gaps in market offerings.",
+				"Task Description": "Identify and analyze key unmet customer needs and pain points within a given industry or product category.",
+				"Audience Identification": "Product managers, business development teams, and UX designers.",
+				"Purpose Clarification": "To provide insights for innovation, product improvements, and competitive differentiation.",
+				"Constraints and Requirements": "Use customer reviews, satisfaction surveys, and competitive analysis data.",
+				"Source Specification": "Rely on consumer feedback platforms, survey studies, and competitor benchmarking reports.",
+				"Output Format": "A structured report highlighting common customer pain points and unmet needs.",
+				"Style and Tone Guidelines": "Customer-focused, data-backed, and solution-oriented.",
+				"Evidence Linking": "Provide references from customer insights reports and real-world complaints.",
+				"Verification Steps": "Validate findings by cross-referencing multiple consumer research studies.",
+				"Iterative Refinement": "Allow users to specify particular product categories or target demographics.",
+				"Feedback Incorporation": "Enable further exploration into potential product improvements."
+			}
+		},
+		{
+			"id": "ci_5",
+			"question": "What are the existing need and want spaces in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a market demand strategist identifying consumer needs and wants.",
+				"Task Description": "Analyze the industry's current demand landscape, distinguishing between essential needs and aspirational wants.",
+				"Output Format": "A structured report comparing unmet needs versus emerging consumer wants.",
+				"Style Guidelines": "Analytical, well-structured, and data-driven.",
+				"Constraints": "Use insights from consumer trend reports, market surveys, and competitive analysis.",
+				"Interactivity": "Allow user customization by industry or demographic focus."
+			}
+		},
+		{
+			"id": "ci_6",
+			"question": "What are the primary, secondary, and tertiary drivers of purchases in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a consumer purchasing behavior analyst.",
+				"Task Description": "Rank and categorize the main drivers of consumer purchases in this category based on priority levels (primary, secondary, tertiary).",
+				"Output Format": "A ranked list or structured report explaining each purchase driver.",
+				"Style Guidelines": "Hierarchical, research-backed, and structured.",
+				"Constraints": "Ensure analysis is based on consumer research studies and behavioral insights.",
+				"Interactivity": "Allow for user-defined categories for customized insights."
+			}
+		},
+		{
+			"id": "ci_7",
+			"question": "What is the level of customer satisfaction with competitors' products or services?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a customer satisfaction analyst benchmarking competitor performance.",
+				"Task Description": "Analyze customer satisfaction levels for competitors based on product quality, service, and brand experience.",
+				"Output Format": "A structured report comparing competitor satisfaction ratings.",
+				"Style Guidelines": "Quantitative, comparative, and research-based.",
+				"Constraints": "Base findings on verified survey data, review analysis, and customer feedback reports.",
+				"Interactivity": "Allow users to select competitors for more focused analysis."
+			}
+		},
+		{
+			"id": "ci_8",
+			"question": "Are there underserved or overlooked customer groups that could be targeted?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a market expansion strategist identifying untapped customer segments.",
+				"Task Description": "Identify potential customer groups that are currently underserved or overlooked in the industry.",
+				"Audience Identification": "Marketing strategists, business developers, and product managers.",
+				"Purpose Clarification": "To help businesses expand their reach by targeting underserved audiences.",
+				"Constraints and Requirements": "Base findings on demographic research, consumer behavior studies, and industry gap analysis.",
+				"Source Specification": "Use validated industry reports, market segmentation studies, and trend analysis.",
+				"Output Format": "A structured report outlining potential customer groups and opportunities.",
+				"Style and Tone Guidelines": "Strategic, data-driven, and opportunity-focused.",
+				"Evidence Linking": "Provide references from segmentation reports and consumer insights.",
+				"Verification Steps": "Cross-check findings with multiple data sources.",
+				"Iterative Refinement": "Allow users to specify target regions or industries.",
+				"Feedback Incorporation": "Enable further insights on marketing strategies."
+			}
+		}
+	],
+	"Competitive Strategies & Positioning": [
+		{
+			"id": "cs_1",
+			"question": "What marketing and promotional strategies are competitors using?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a marketing strategist specializing in competitive advertising and promotion analysis.",
+				"Task Description": "Analyze the marketing and promotional strategies employed by key competitors in a specific industry, including digital campaigns, traditional media, and influencer partnerships.",
+				"Audience Identification": "Marketing professionals, brand managers, and business strategists.",
+				"Purpose Clarification": "To identify effective competitor marketing strategies and potential areas for differentiation.",
+				"Constraints and Requirements": "Use only validated marketing reports, ad spending data, and campaign case studies.",
+				"Source Specification": "Leverage industry marketing reports, competitor websites, and advertising intelligence platforms.",
+				"Output Format": "A structured report comparing competitor marketing approaches, including budget allocation and messaging strategies.",
+				"Style and Tone Guidelines": "Data-backed, professional, and comparative.",
+				"Evidence Linking": "Provide examples of major marketing campaigns and their effectiveness.",
+				"Verification Steps": "Cross-check findings with multiple marketing intelligence sources.",
+				"Iterative Refinement": "Allow users to specify competitors or marketing channels of interest.",
+				"Feedback Incorporation": "Enable refinement for more in-depth analysis on specific marketing tactics."
+			}
+		},
+		{
+			"id": "cs_2",
+			"question": "How do competitors represent themselves to consumers? What is their unique positioning?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a brand positioning analyst specializing in competitive differentiation.",
+				"Task Description": "Assess how competitors position themselves in the market and how they communicate their unique value proposition to consumers.",
+				"Output Format": "A structured analysis comparing competitor branding, messaging, and customer perception.",
+				"Style Guidelines": "Strategic, concise, and research-backed.",
+				"Constraints": "Use verified branding case studies, competitor messaging analysis, and consumer perception data.",
+				"Interactivity": "Allow users to specify competitors or industries for a more focused analysis."
+			}
+		},
+		{
+			"id": "cs_3",
+			"question": "How have competitors been successful in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a business strategy analyst identifying success factors in competitive industries.",
+				"Task Description": "Analyze key success factors that have contributed to the growth and dominance of leading competitors in this category.",
+				"Output Format": "A structured success analysis identifying common winning strategies.",
+				"Style Guidelines": "Objective, analytical, and data-driven.",
+				"Constraints": "Base analysis on financial performance, brand reputation, and innovation strategies.",
+				"Interactivity": "Allow user input to specify competitors or key success factors of interest."
+			}
+		},
+		{
+			"id": "cs_4",
+			"question": "What strategies have competitors used to gain a competitive advantage?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive intelligence expert analyzing strategic advantages.",
+				"Task Description": "Identify and evaluate the competitive strategies used by leading brands, such as cost leadership, differentiation, and market segmentation.",
+				"Output Format": "A comparative analysis highlighting effective competitive strategies.",
+				"Style Guidelines": "Insightful, strategic, and research-supported.",
+				"Constraints": "Use only credible business strategy research, market reports, and competitor case studies.",
+				"Interactivity": "Enable customization by industry or business model focus."
+			}
+		},
+		{
+			"id": "cs_5",
+			"question": "How have competitors unlocked growth vertically or laterally?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a market expansion strategist analyzing growth pathways.",
+				"Task Description": "Assess how competitors have achieved growth through vertical integration (control over supply chain) or lateral expansion (entry into adjacent markets).",
+				"Output Format": "A structured report detailing vertical and lateral growth strategies.",
+				"Style Guidelines": "Strategic, structured, and opportunity-focused.",
+				"Constraints": "Use financial reports, expansion case studies, and strategic analyses.",
+				"Interactivity": "Allow users to specify competitors or industries for deeper insights."
+			}
+		},
+		{
+			"id": "cs_6",
+			"question": "What major investments have competitors made (e.g., R&D, acquisitions, partnerships)?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a corporate strategy analyst tracking competitor investments.",
+				"Task Description": "Analyze major investments made by competitors, including R&D spending, mergers, acquisitions, and strategic partnerships.",
+				"Audience Identification": "Business strategists, investors, and corporate development teams.",
+				"Purpose Clarification": "To understand how competitors are allocating resources for future growth.",
+				"Constraints and Requirements": "Use only validated investment reports, financial filings, and industry analysis.",
+				"Source Specification": "Leverage sources such as SEC filings, investor presentations, and industry news.",
+				"Output Format": "A structured investment analysis report with key figures and trends.",
+				"Style and Tone Guidelines": "Data-driven, financial-focused, and strategic.",
+				"Evidence Linking": "Provide references for major competitor investments.",
+				"Verification Steps": "Cross-check investment data with multiple financial sources.",
+				"Iterative Refinement": "Allow users to specify competitors or investment types of interest.",
+				"Feedback Incorporation": "Enable further refinement into investment impact analysis."
+			}
+		},
+		{
+			"id": "cs_7",
+			"question": "How do competitors leverage digital platforms and social media?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a digital marketing strategist analyzing competitive online presence.",
+				"Task Description": "Analyze how competitors use social media, content marketing, and digital platforms to engage consumers.",
+				"Output Format": "A structured report with platform-specific analysis and engagement metrics.",
+				"Style Guidelines": "Strategic, data-backed, and focused.",
+				"Constraints": "Use social media analytics tools, engagement reports, and digital marketing research.",
+				"Interactivity": "Allow selection of specific competitors or platforms for tailored insights."
+			}
+		},
+		{
+			"id": "cs_8",
+			"question": "What is the brand voice of each competitor?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a brand identity expert analyzing competitor tone and messaging.",
+				"Task Description": "Evaluate the brand voice of key competitors, including tone, language, and personality conveyed in marketing materials.",
+				"Output Format": "A structured brand analysis comparing voice, tone, and key messaging.",
+				"Style Guidelines": "Comparative, branding-focused, and structured.",
+				"Constraints": "Use competitor websites, advertising, and social media as primary sources.",
+				"Interactivity": "Enable focus on specific competitors or branding elements."
+			}
+		},
+		{
+			"id": "cs_9",
+			"question": "How has each competitor defined their target audience?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a market segmentation expert analyzing competitor audience strategies.",
+				"Task Description": "Identify and compare the target audiences of key competitors, based on demographics, psychographics, and behavioral data.",
+				"Output Format": "A structured report comparing competitor audience targeting strategies.",
+				"Style Guidelines": "Consumer-focused, data-backed, and strategic.",
+				"Constraints": "Base insights on competitor marketing campaigns, consumer segmentation studies, and brand messaging.",
+				"Interactivity": "Allow users to specify competitors for focused comparisons."
+			}
+		}
+	],
+	"Barriers to Entry & Market Challenges": [
+		{
+			"id": "be_1",
+			"question": "What are the primary barriers to entry in this market?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a market entry analyst identifying competitive barriers.",
+				"Task Description": "Analyze the key barriers preventing new companies from entering this industry, including regulatory, financial, technological, and market-based challenges.",
+				"Audience Identification": "Entrepreneurs, investors, and business strategists.",
+				"Purpose Clarification": "To help businesses understand industry challenges before entering the market.",
+				"Constraints and Requirements": "Base analysis on industry reports, regulatory frameworks, and competitive landscapes.",
+				"Source Specification": "Use government regulations, market research reports, and industry analysis studies.",
+				"Output Format": "A structured report categorizing major barriers to entry.",
+				"Style and Tone Guidelines": "Business-oriented, research-backed, and clearly structured.",
+				"Evidence Linking": "Provide supporting citations from authoritative industry sources.",
+				"Verification Steps": "Cross-check barriers with multiple industry sources.",
+				"Iterative Refinement": "Allow user input to specify industries or geographic regions.",
+				"Feedback Incorporation": "Enable further refinement based on user-specified concerns."
+			}
+		},
+		{
+			"id": "be_2",
+			"question": "How do regulatory and legal factors, economic downturns, and technological disruption affect competition?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a business environment analyst assessing external market forces.",
+				"Task Description": "Analyze how regulations, economic fluctuations, and technological advancements impact competition within a specific industry.",
+				"Audience Identification": "Corporate strategists, compliance officers, and market analysts.",
+				"Purpose Clarification": "To provide insights into external pressures shaping competitive landscapes.",
+				"Constraints and Requirements": "Base insights on government regulations, economic indicators, and technological innovation reports.",
+				"Source Specification": "Use validated sources such as economic reports, industry regulations, and market intelligence.",
+				"Output Format": "A structured report detailing regulatory, economic, and technological impacts on competition.",
+				"Style and Tone Guidelines": "Strategic, analytical, and fact-driven.",
+				"Evidence Linking": "Cite relevant industry reports and regulatory frameworks.",
+				"Verification Steps": "Validate findings against multiple economic and industry studies.",
+				"Iterative Refinement": "Allow users to specify focus areas (e.g., legal risks, recession impacts, or tech disruptions).",
+				"Feedback Incorporation": "Enable refinement based on specific business concerns."
+			}
+		},
+		{
+			"id": "be_3",
+			"question": "What geopolitical and social movements have influenced this category in the past decade?",
+			"method": "12-Box",
+			"prompt": {
+				"Role Definition": "You are a geopolitical and social trend analyst.",
+				"Task Description": "Evaluate how geopolitical events and social movements have shaped industry trends, consumer behavior, and market competition over the past decade.",
+				"Audience Identification": "Corporate strategists, policymakers, and global market analysts.",
+				"Purpose Clarification": "To provide insights into external social and political factors influencing the market.",
+				"Constraints and Requirements": "Base analysis on political reports, social trend data, and industry responses.",
+				"Source Specification": "Use sources such as government reports, global trade studies, and consumer behavior research.",
+				"Output Format": "A structured report linking geopolitical and social movements to market changes.",
+				"Style and Tone Guidelines": "Insightful, data-backed, and globally focused.",
+				"Evidence Linking": "Provide references for key geopolitical and social impact events.",
+				"Verification Steps": "Validate data across multiple international and industry-specific sources.",
+				"Iterative Refinement": "Allow users to specify regions or industries for focused analysis.",
+				"Feedback Incorporation": "Enable further customization based on user preferences."
+			}
+		},
+		{
+			"id": "be_4",
+			"question": "What potential substitutes exist for products or services in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a competitive market analyst assessing product substitution risks.",
+				"Task Description": "Identify potential substitutes for existing products or services within this category and analyze their competitive threat levels.",
+				"Output Format": "A structured analysis listing substitutes, their advantages, and their impact on market dynamics.",
+				"Style Guidelines": "Comparative, research-backed, and strategic.",
+				"Constraints": "Use industry reports, consumer preference data, and market disruption studies.",
+				"Interactivity": "Allow users to specify industries or focus areas for more targeted insights."
+			}
+		},
+		{
+			"id": "be_5",
+			"question": "What factors drive competitive differentiation in this category?",
+			"method": "6-Box",
+			"prompt": {
+				"Role Definition": "You are a differentiation strategy consultant analyzing competitive uniqueness.",
+				"Task Description": "Assess the key factors that distinguish competitors in this industry, including innovation, branding, customer experience, and pricing strategies.",
+				"Output Format": "A structured analysis listing differentiation strategies with examples.",
+				"Style Guidelines": "Strategic, structured, and opportunity-driven.",
+				"Constraints": "Use competitor case studies, branding research, and industry reports.",
+				"Interactivity": "Enable customization for industry-specific differentiation insights."
+			}
+		}
+	]
+}
+
+

@@ -1,46 +1,44 @@
 <script lang="ts">
+	import { Plus, Trash2 } from 'lucide-svelte';
 	import { chatStore } from './Chat.svelte.ts';
-	import ChatListIcon from 'lucide-svelte/icons/message-circle-code';
-	import type { Chat } from '$lib/data/sampleChats';
+
+	export let openNewChatModal = () => {};
 </script>
 
-<div class="border-surface-200-800 hidden h-full grid-rows-[auto_1fr_auto] border-r-[1px] lg:grid">
-	<!-- Header -->
-	<header class="border-surface-200-800 border-b-[1px] p-4">
-		<input class="input w-full" type="search" placeholder="Search..." />
-	</header>
-	
-	<!-- List -->
-	<div class="flex-1 overflow-y-auto p-4 space-y-4">
-		<small class="opacity-50">Previous Analysis</small>
-		<div class="flex flex-col space-y-1">
-			{#each chatStore.chats as chat}
-				<button
-					type="button"
-					class="card flex w-full items-center space-x-4 p-2 {chat.id === chatStore.currentChatId
-						? 'preset-filled-primary-500'
-						: 'bg-surface-hover-token'}"
+<div class="flex h-full flex-col">
+	<!-- New Chat Button -->
+	<div class="p-1.5">
+		<button 
+			class="btn variant-filled-primary w-full text-sm"
+			onclick={openNewChatModal}
+		>
+			<Plus class="h-3.5 w-3.5" />
+			<span>New Analysis</span>
+		</button>
+	</div>
+
+	<!-- Chat List with proper scrolling -->
+	<div class="flex-1 overflow-y-auto p-1.5 space-y-1.5">
+		{#each chatStore.chats as chat}
+			<div class="flex items-center gap-2">
+				<button 
+					class="flex-1 text-left p-2 rounded-lg transition-colors duration-200 text-sm
+						   {chat.id === chatStore.currentChatId ? 'bg-primary-500' : 'hover:bg-surface-700'}"
 					onclick={() => chatStore.switchChat(chat.id)}
 				>
-					<div class="flex h-8 w-8 flex-shrink-0 items-center justify-center">
-						<ChatListIcon class="h-5 w-5" />
+					<div class="font-medium text-sm">{chat.name}</div>
+					<div class="text-xs opacity-70">
+						{new Date(chat.createdAt).toLocaleDateString()}
 					</div>
-					<span class="flex-1 truncate text-start">
-						{chat.name}
-					</span>
 				</button>
-			{/each}
-		</div>
+				<button 
+					class="btn-icon btn-icon-sm variant-soft-error"
+					onclick={() => chatStore.deleteChat(chat.id)}
+					aria-label="Delete chat"
+				>
+					<Trash2 class="h-4 w-4" />
+				</button>
+			</div>
+		{/each}
 	</div>
-	
-	<!-- Footer -->
-	<footer class="border-surface-200-800 border-t-[1px] p-4">
-		<button
-			type="button"
-			class="btn btn-sm variant-filled-primary w-full"
-			onclick={() => chatStore.createNewChat("New Chat")}
-		>
-			New Chat
-		</button>
-	</footer>
 </div>
