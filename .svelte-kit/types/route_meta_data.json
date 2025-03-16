@@ -1,3 +1,16 @@
 {
-	"/": []
+	"/": [],
+	"/admin": [],
+	"/api/ai": [
+		"src/routes/api/ai/+server.ts"
+	],
+	"/api/chat": [
+		"src/routes/api/chat/+server.ts"
+	],
+	"/api/health": [
+		"src/routes/api/health/+server.ts"
+	],
+	"/api/indexing": [
+		"src/routes/api/indexing/+server.ts"
+	]
 }

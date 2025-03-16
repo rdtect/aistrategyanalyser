@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { appStore } from '$lib/state/appState.svelte.ts';
-	import AnalysisModal from '$lib/components/AnalysisModal.svelte';
+	
 	import Chat from '$lib/components/chat/Chat.svelte';
 	import NewAnalysisModal from '$lib/components/chat/NewAnalysisModal/index.svelte';
 

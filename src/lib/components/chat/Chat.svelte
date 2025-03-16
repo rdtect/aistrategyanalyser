@@ -61,9 +61,9 @@
 
 <!-- #snippets section for reusable UI elements -->
 {#snippet userMessage(message: Message, index: number)}
-	<div class="flex w-full gap-2 py-2" in:fly={{ y: 20, duration: 300, delay: index * 100 }}>
+	<div class="flex w-full flex-row-reverse gap-2 py-2" in:fly={{ y: 20, duration: 300, delay: index * 100 }}>
 		<Avatar name={userName} />
-		<div class="card bg-surface-700/80 w-full rounded-tl-none p-4">
+		<div class="card bg-surface-700/100 w-3/4 rounded-3xl rounded-tr-none p-4">
 			<header class="mb-1 flex justify-between">
 				<p class="font-bold text-white">Rick</p>
 				<small class="text-white opacity-70">
@@ -79,22 +79,22 @@
 
 {#snippet botMessage(message: Message, index: number)}
 	<div
-		class="flex w-full flex-row-reverse gap-2 py-2"
+		class="flex w-full gap-2 py-2"
 		in:fly={{ y: 20, duration: 300, delay: index * 100 }}
 	>
 		<Avatar name="AI">
-			<div class="flex h-full w-full items-center justify-center rounded-full">
+			<div class="flex bg-primary-500 h-full w-full items-center justify-center rounded-full">
 				<BotIcon class="h-6 w-6" />
 			</div>
 		</Avatar>
-		<div class="card bg-primary-800 w-full rounded-tr-none p-4">
+		<div class="card bg-surface-800/50 w-3/4 shadow-xl shadow-blue-500/5 rounded-3xl rounded-tl-none p-4">
 			<header class="mb-1 flex justify-between">
 				<p class="font-bold text-white">AI Assistant</p>
 				<small class="text-white opacity-70">
 					{message.timestamp}
 				</small>
 			</header>
-			<div class="prose prose-sm prose-invert max-w-none text-white">
+			<div class="prose prose-sm prose-invert max-w-none text-white p-4">
 				{@html marked(message.content)}
 			</div>
 		</div>

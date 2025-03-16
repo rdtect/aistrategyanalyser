@@ -11,10 +11,10 @@
 	import IconTrendingUp from 'lucide-svelte/icons/trending-up';
 	import IconBuilding from 'lucide-svelte/icons/building';
 
-	let isExpansed = $state(false); // Collapsed by default
+	let isExpanded = $state(false); // Collapsed by default
 
 	function toggleExpanded() {
-		isExpansed = !isExpansed;
+		isExpanded = !isExpanded;
 	}
 
 	// Track the active navigation item
@@ -31,7 +31,7 @@
 <!-- Custom wrapper with text-left class to ensure left alignment -->
 <div class="h-full w-full text-left">
 	<!-- Component -->
-	<Navigation.Rail expanded={isExpansed}>
+	<Navigation.Rail expanded={isExpanded}>
 		{#snippet header()}
 			<Navigation.Tile labelExpanded="Menu" onclick={toggleExpanded} title="Toggle Menu Width"
 				><IconMenu /></Navigation.Tile

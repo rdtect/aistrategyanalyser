@@ -8,8 +8,8 @@
         "@supabase/auth-helpers-sveltekit": "0.13.0",
         "@supabase/supabase-js": "2.49.1",
         "marked": "15.0.7",
-        "openai": "^4.87.3",
-        "zod": "^3.24.2",
+        "openai": "4.87.3",
+        "zod": "3.24.2",
       },
       "devDependencies": {
         "@skeletonlabs/skeleton": "3.0.0",
