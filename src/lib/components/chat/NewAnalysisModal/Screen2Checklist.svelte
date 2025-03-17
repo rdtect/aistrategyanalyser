@@ -20,17 +20,18 @@
         [key: string]: QuestionData[];
     }
 
+   
+    let {selected,onUpdate,onNext,onBack,isValid} =$props()
+
+    // Local state
+    let error = $state('');
+    let accordionValue = $state(['category1']);
+    let formData = $state({
+        selectedQuestions: selected
+    });
+
     // Type assertion for the imported data
     const typedCategoryQuestionPrompts = categoryQuestionPrompts as CategoryQuestions;
-
-    let { 
-        formData = $bindable(),
-        error = $bindable(''),
-        onNext = () => {},
-        onBack = () => {}
-    } = $props();
-
-    let accordionValue = $state(['category1']);
 
     // Calculate selected questions per category
     let categoryStats = $derived(
@@ -56,6 +57,7 @@
             formData.selectedQuestions[question.id] = shouldSelect;
         });
         formData.selectedQuestions = { ...formData.selectedQuestions };
+        onUpdate(formData.selectedQuestions);
     }
 
     function handleNext() {
@@ -77,6 +79,11 @@
     function handleClick(event: MouseEvent): void {
         onBack();
     }
+
+    // Watch for changes in selected questions and update parent
+    $effect(() => {
+        onUpdate(formData.selectedQuestions);
+    });
 </script>
 
 <div class="space-y-4">

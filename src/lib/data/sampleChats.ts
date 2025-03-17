@@ -26,7 +26,7 @@ export const sampleChats: Chat[] = [
 		id: 0,
 		company: 'Nike',
 		industry: 'Athletic Footwear',
-		region: 'North America',
+		region: 'South India',
 		context:
 			"Analysis of Nike's market position, strengths, and challenges in the North American athletic footwear market.",
 		name: 'Nike | Athletic Footwear | North America',
@@ -38,75 +38,24 @@ export const sampleChats: Chat[] = [
 				timestamp: '2:30 PM',
 				content: "Can you analyze Nike's position in the athletic footwear market in North America?"
 			},
-			{
-				id: 1,
-				sender: 'ai',
-				timestamp: '2:30 PM',
-				content: `
-# Nike in North American Athletic Footwear
-
-## Market Position
-Nike remains the dominant player in North American athletic footwear with approximately 35% market share. Their closest competitors are Adidas (15%), Brooks (8%), and New Balance (7%).
-
-## Key Strengths
-- Strong brand recognition and loyalty
-- Extensive product range covering all price points
-- Innovative technology (Air, React, ZoomX)
-- Powerful marketing and athlete endorsements
-- Expanding direct-to-consumer channels
-
-## Challenges
-- Increasing competition from specialized brands
-- Supply chain disruptions affecting inventory
-- Pressure to maintain sustainability commitments
-- Balancing premium positioning with mass market appeal
-
-Would you like more specific information about Nike's competitive landscape, consumer trends, or growth opportunities?
-				`
-			}
+			
 		]
 	},
 	{
 		id: 1,
-		company: 'Starbucks',
-		industry: 'Coffee Shops',
-		region: 'Global',
-		name: 'Starbucks | Coffee Shops | Global',
+		company: 'the whole truth',
+		industry: 'protein and energy bars',
+		region: 'India',
+		name: 'the whole truth | protein and energy bars | India',
+		createdAt: '2023-10-15T14:30:00Z',
 		createdAt: '2023-10-20T09:15:00Z',
 		messages: [
 			{
 				id: 0,
 				sender: 'user',
 				timestamp: '9:15 AM',
-				content:
-					'What are the current trends in the global coffee shop market that Starbucks should be aware of?'
+				content: "Can you analyze the whole truth's position in the protein and energy bars market in India?"
 			},
-			{
-				id: 1,
-				sender: 'ai',
-				timestamp: '9:15 AM',
-				content: `
-# Global Coffee Shop Trends for Starbucks
-
-## Key Market Trends
-1. **Sustainability Focus**: Consumers increasingly demand ethically sourced beans and eco-friendly packaging
-2. **Specialty Coffee Growth**: Premium, single-origin offerings growing at 13% annually
-3. **Digital Integration**: Mobile ordering and loyalty programs driving 24% of transactions
-4. **Alternative Milks**: Plant-based options now requested in 25% of milk-based beverages
-5. **"Third Place" Evolution**: Post-pandemic shift in how consumers use coffee shops as workspaces
-
-## Regional Variations
-- **North America**: Cold brew and ready-to-drink categories expanding rapidly
-- **Europe**: Specialty coffee culture challenging chain dominance
-- **Asia-Pacific**: Tea-coffee fusion drinks gaining popularity
-- **Latin America**: Local chain growth presenting new competition
-
-## Strategic Implications
-Starbucks should consider strengthening its sustainability messaging, expanding specialty offerings, and continuing to innovate in its digital ecosystem to maintain market leadership.
-
-Would you like me to elaborate on any specific trend or region?
-				`
-			}
 		]
 	},
 	{

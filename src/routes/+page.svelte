@@ -1,25 +1,15 @@
 <script lang="ts">
-	
 	import Chat from '$lib/components/chat/Chat.svelte';
-	import NewAnalysisModal from '$lib/components/chat/NewAnalysisModal/index.svelte';
+	import { sampleChats } from '$lib/data/sampleChats';
 
-	let showNewChatModal = $state(false);
-
-	function openNewChatModal() {
-		showNewChatModal = true;
-	}
-
-	function handleCloseModal() {
-		showNewChatModal = false;
-	}
+	// Convert sampleChats to a Promise to match the component's expectations
+	// const chats = Promise.resolve(sampleChats);
 </script>
 
-<!-- Main container with fixed height and auto margins -->
+{#await sampleChats}
+	Loading....
+{:then sampleChats} 
 <div class="container mx-auto p-4">
-	<Chat {openNewChatModal} />
-	
-	<NewAnalysisModal 
-		open={showNewChatModal} 
-		onClose={handleCloseModal}
-	/>
-</div>
+	<Chat chats={sampleChats} />
+</div>	
+{/await}

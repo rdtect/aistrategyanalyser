@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { appStore } from '$lib/state/appState.svelte';
+    import { appStore } from '$lib/state/app.svelte';
     import { fade } from 'svelte/transition';
 
     // Local state for form validation

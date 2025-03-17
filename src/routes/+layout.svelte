@@ -1,26 +1,10 @@
 <script lang="ts">
 	import Navigation from './Navigation.svelte';
-	import { getContext } from 'svelte';
+	
 
 	import '../app.css';
 
-	// Define the type for our analysis data
-	interface AnalysisData {
-		title: string;
-		description: string;
-		features: string[];
-		instructions: string[];
-		/**
-		 * OpenAI connection status information
-		 * - connected: Whether the OpenAI API is successfully connected
-		 * - error: Optional error message when connection fails
-		 */
-		openai?: {
-			connected: boolean;
-			error?: string;
-		};
-	}
-
+	
 	let { children } = $props();
 
 	// Try to get analysis data from context (will be undefined on routes without it)
@@ -55,7 +39,7 @@
 	</div>
 	<!-- Footer -->
 	<footer class="bg-surface-900/90 z-10 flex items-center justify-between p-4">
-		<span>&copy; 2024 aiStrategyBot x rdtect</span>
+		<span>&copy; 2024 AI Strategy and Research Bot using 4c's Framework</span>
 		<span class="text-sm opacity-70">Powered by OGS x rdtect</span>
 	</footer>
 </div>

@@ -1,8 +1,13 @@
 <script lang="ts">
 	import { Plus, Trash2 } from 'lucide-svelte';
 	import { chatStore } from './Chat.svelte.ts';
+	import NewAnalysisModal from './NewAnalysisModal/index.svelte';
 
-	export let openNewChatModal = () => {};
+	let { showNewChatModal, openNewChatModal, handleCloseModal } = $props<{
+		showNewChatModal: boolean;
+		openNewChatModal: () => void;
+		handleCloseModal: () => void;
+	}>();
 </script>
 
 <div class="flex h-full flex-col">
@@ -16,7 +21,7 @@
 			<span>New Analysis</span>
 		</button>
 	</div>
-
+<hr class="hr">
 	<!-- Chat List with proper scrolling -->
 	<div class="flex-1 overflow-y-auto p-1.5 space-y-1.5">
 		{#each chatStore.chats as chat}
@@ -42,3 +47,7 @@
 		{/each}
 	</div>
 </div>
+<NewAnalysisModal 
+	open={showNewChatModal} 
+	onClose={handleCloseModal}
+/>

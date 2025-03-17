@@ -1,85 +1,82 @@
 <script lang="ts">
-    import { ChevronRight } from 'lucide-svelte';
+    let { onUpdate, onNext, onClose } = $props<{
+        onUpdate: (data: any) => void;
+        onNext: () => void;
+        onClose: () => void;
+    }>();
 
-    let { 
-        formData = $bindable(),
-        error = '',
-        onNext = () => {},
-        onClose = () => {}
-    } = $props();
+    let companyName = $state('');
+    let industry = $state('');
+    let region = $state('');
+    let context = $state('');
 
-    function handleSubmit(e: Event) {
-        e.preventDefault();
-        
-        if (!formData.company || !formData.industry || !formData.region) {
-            error = 'Please fill in all required fields';
-            return;
-        }
-        
-        error = '';
+    function handleSubmit() {
+        onUpdate({
+            companyName,
+            industry,
+            region,
+            context
+        });
         onNext();
     }
 </script>
 
-<form class="space-y-4" onsubmit={handleSubmit}>
-    <label class="label">
-        <span>Company Name*</span>
-        <input
-            type="text"
-            bind:value={formData.company}
-            class="input"
-            placeholder="e.g. Apple Inc."
-            required
-        />
-    </label>
-    
-    <label class="label">
-        <span>Industry/Category*</span>
-        <input
-            type="text"
-            bind:value={formData.industry}
-            class="input"
-            placeholder="e.g. Technology"
-            required
-        />
-    </label>
-    
-    <label class="label">
-        <span>Region*</span>
-        <input
-            type="text"
-            bind:value={formData.region}
-            class="input"
-            placeholder="e.g. North America"
-            required
-        />
-    </label>
-    
-    <label class="label">
-        <span>Additional Context (Optional)</span>
-        <textarea
-            bind:value={formData.context}
-            class="textarea"
-            rows="3"
-            placeholder="Any specific focus areas or additional information..."
-        ></textarea>
-    </label>
-    
-    {#if error}
-        <p class="text-error-500">{error}</p>
-    {/if}
+<div class="space-y-4">
+    <header class="flex justify-between items-center">
+        <h2 class="h2">New Analysis</h2>
+        <button class="btn-icon hover:variant-soft" onclick={onClose}>✕</button>
+    </header>
 
-    <div class="flex justify-end space-x-2">
-        <button 
-            type="button" 
-            class="btn variant-soft" 
-            onclick={(e: MouseEvent) => onClose()}
-        >
-            Cancel
-        </button>
-        <button type="submit" class="btn variant-filled-primary">
-            Next
-            <ChevronRight class="h-4 w-4" />
-        </button>
+    <div class="space-y-4">
+        <label class="label">
+            <span>Company Name</span>
+            <input 
+                type="text" 
+                class="input" 
+                bind:value={companyName} 
+                placeholder="Enter company name"
+            />
+        </label>
+
+        <label class="label">
+            <span>Industry</span>
+            <input 
+                type="text" 
+                class="input" 
+                bind:value={industry} 
+                placeholder="Enter industry"
+            />
+        </label>
+
+        <label class="label">
+            <span>Region</span>
+            <input 
+                type="text" 
+                class="input" 
+                bind:value={region} 
+                placeholder="Enter region"
+            />
+        </label>
+
+        <label class="label">
+            <span>Context</span>
+            <textarea 
+                class="textarea" 
+                bind:value={context} 
+                placeholder="Enter analysis context"
+                rows="4"
+            ></textarea>
+        </label>
     </div>
-</form>
+
+    <footer class="flex justify-end gap-2">
+        <button class="btn variant-soft" onclick={onClose}>Cancel</button>
+        <button 
+            class="btn variant-filled-primary" 
+            onclick={handleSubmit}
+            disabled={!companyName || !industry || !region || !context}
+        >
+            Next
+        </button>
+    </footer>
+</div>

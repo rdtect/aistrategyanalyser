@@ -1,6 +1,5 @@
 {
 	"/": [],
-	"/admin": [],
 	"/api/ai": [
 		"src/routes/api/ai/+server.ts"
 	],

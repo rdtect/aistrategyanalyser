@@ -1,94 +1,201 @@
 <script lang="ts">
-    import { fade } from 'svelte/transition';
-    import Screen1Input from './Screen1Input.svelte';
-    import Screen2Checklist from './Screen2Checklist.svelte';
-    import Screen3Progress from './Screen3Progress.svelte';
-    import { chatStore } from '../Chat.svelte.ts';
-    
-    let { open = false, onClose = () => {} } = $props();
-    
-    // Shared state
-    let currentStep = $state(1);
-    let error = $state('');
-    let formData = $state({
-        company: '',
-        industry: '',
-        region: '',
-        context: '',
-        selectedQuestions: {} as Record<string, boolean>
-    });
-    
-    function handleNext() {
-        currentStep++;
-    }
-    
-    function handleBack() {
-        currentStep--;
-    }
-    
-    function resetForm() {
-        formData = {
-            company: '',
-            industry: '',
-            region: '',
-            context: '',
-            selectedQuestions: {}
-        };
-        currentStep = 1;
-        error = '';
-    } 
-    
-    $effect(() => {
-        if (!open) resetForm();
-    });
+    import { Accordion } from '@skeletonlabs/skeleton-svelte';
+    import { Modal } from '@skeletonlabs/skeleton-svelte';
+    import IconX from 'lucide-svelte/icons/x';
+    import categoryQuestionPrompts from '$lib/data/category_question_prompts.json';
+    import { analysisState } from './contextState.svelte.ts';
+    import AnalysisProgress from './AnalysisProgress.svelte';
 
+    // Type for the question data
+    type QuestionData = {
+        id: string;
+        question: string;
+        method: string;
+        prompt: {
+            [key: string]: string;
+        };
+    };
+
+    let { open = false, onClose } = $props<{
+        open: boolean;
+        onClose: () => void;
+    }>();
     
-  
+
+    function handleClose() {
+        analysisState.step = 1;
+        analysisState.companyInfo = {
+            company: '',
+            region: '',
+            industry: '',
+            context: ''
+        };
+        analysisState.selectedQuestions = {};
+        onClose();
+    }
+
+    function handleCompanySubmit(event: SubmitEvent) {
+        event.preventDefault();
+        analysisState.step = 2;
+    }
+
+    function handleQuestionsSubmit(event: SubmitEvent) {
+        event.preventDefault();
+        analysisState.step = 3;
+    }
 </script>
 
-{#if open}
-    <div 
-        class="fixed inset-0 z-[9999] flex items-center justify-center backdrop-blur-sm bg-black/50 p-4" 
-        transition:fade={{ duration: 200 }}
-    >
-        <div class="w-full max-w-2xl max-h-[80vh] rounded-lg bg-surface-900 shadow-2xl">
-            <div class="card flex flex-col h-full">
-                <header class="card-header flex justify-between p-4 border-b border-surface-700">
-                    <h3 class="h3 text-xl font-bold">
-                        {#if currentStep === 1}
-                            New Analysis
-                        {:else if currentStep === 2}
-                            Select Questions
-                        {:else}
-                            Analyzing
-                        {/if}
-                    </h3>
-                </header>
+<Modal
+    {open}
+    onOpenChange={(e) => {
+        if (!e.open) onClose();
+    }}
+    backdropClasses="bg-black/50 backdrop-blur-sm"
+    contentBase="card bg-surface-100-900 p-4 space-y-4 shadow-xl fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] aspect-[4/3] m-auto"
+>
+    {#snippet trigger()}
+        <span class="btn variant-filled-primary">
+            + New Analysis
+        </span>
+    {/snippet}
 
-                <div class="p-4">
-                    {#if currentStep === 1}
-                        <Screen1Input 
-                            bind:formData
-                            {error}
-                            onNext={handleNext}
-                            {onClose}
-                        />
-                    {:else if currentStep === 2}
-                        <Screen2Checklist
-                            bind:formData
-                            {error}
-                            onNext={handleNext}
-                            onBack={handleBack}
-                        />
-                    {:else}
-                        <Screen3Progress
-                            {formData}
-                            onComplete={onClose}
-                            onError={() => currentStep = 2}
-                        />
-                    {/if}
+    {#snippet content()}
+        <header class="flex justify-between items-center mb-4">
+            <h3 class="h3">
+                {analysisState.step === 1 ? 'Company Details' : 
+                 analysisState.step === 2 ? 'Select Questions' : 
+                 'Analysis Progress'}
+            </h3>
+            <button type="button" class="btn-icon" onclick={handleClose}>
+                <IconX />
+            </button>
+        </header>
+
+        {#if analysisState.step === 1}
+            <form 
+                class="space-y-4" 
+                onsubmit={handleCompanySubmit}
+            >
+                <label class="label">
+                    <span>Company</span>
+                    <input 
+                        bind:value={analysisState.companyInfo.company} 
+                        class="input"
+                        required
+                    />
+                </label>
+                
+                <label class="label">
+                    <span>Region</span>
+                    <input 
+                        bind:value={analysisState.companyInfo.region} 
+                        class="input"
+                        required
+                    />
+                </label>
+
+                <label class="label">
+                    <span>Industry</span>
+                    <input 
+                        bind:value={analysisState.companyInfo.industry} 
+                        class="input"
+                        required
+                    />
+                </label>
+
+                <label class="label">
+                    <span>Additional Context (optional)</span>
+                    <textarea 
+                        bind:value={analysisState.companyInfo.context} 
+                        class="textarea"
+                    ></textarea>
+                </label>
+
+                <div class="flex justify-end gap-2">
+                    <button 
+                        type="button"
+                        class="btn variant-filled" 
+                        onclick={handleClose}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        class="btn variant-filled-primary" 
+                    >
+                        Next
+                    </button>
                 </div>
-            </div>
-        </div>
-    </div>
-{/if}
+            </form>
+
+        {:else if analysisState.step === 2}
+            <form 
+                class="space-y-4"
+                onsubmit={handleQuestionsSubmit}
+            >
+                <div class="space-y-2">
+                    <Accordion>
+                        {#each Object.entries(categoryQuestionPrompts) as [category, questions]}
+                            <Accordion.Item value={category}>
+                                {#snippet lead()}<span class="badge variant-filled">
+                                    {questions.filter(q => analysisState.selectedQuestions[q.id]).length}
+                                </span>{/snippet}
+                                {#snippet control()}{category}{/snippet}
+                                {#snippet panel()}
+                                    <div class="space-y-2">
+                                        {#each questions as { id, question } (id)}
+                                            <label class="flex items-start gap-2">
+                                                <input
+                                                    type="checkbox"
+                                                    bind:checked={analysisState.selectedQuestions[id]}
+                                                    class="checkbox"
+                                                />
+                                                <span>{question}</span>
+                                            </label>
+                                        {/each}
+                                    </div>
+                                {/snippet}
+                            </Accordion.Item>
+                        {/each}
+                    </Accordion>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button 
+                        type="button"
+                        class="btn variant-filled" 
+                        onclick={() => analysisState.step = 1}
+                    >
+                        Back
+                    </button>
+                    <button 
+                        type="submit"
+                        class="btn variant-filled-primary" 
+                        disabled={Object.values(analysisState.selectedQuestions).filter(Boolean).length === 0}
+                    >
+                        Start Analysis
+                    </button>
+                </div>
+            </form>
+        {:else if analysisState.step === 3}
+            <AnalysisProgress
+                formData={{
+                    company: analysisState.companyInfo.company,
+                    region: analysisState.companyInfo.region,
+                    industry: analysisState.companyInfo.industry,
+                    context: analysisState.companyInfo.context,
+                    selectedQuestions: analysisState.selectedQuestions
+                }}
+                onComplete={() => {
+                    handleClose();
+                    // Optionally navigate to the new chat
+                }}
+                onError={() => {
+                    // Handle error state
+                }}
+            />
+        {:else}
+            <div>Analysis in progress...</div>
+        {/if}
+    {/snippet}
+</Modal>
