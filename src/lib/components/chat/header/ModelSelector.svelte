@@ -16,7 +16,8 @@
     };
 </script>
 
-<select 
+<input
+type="select" 
     class="select bg-surface-700 text-xs w-fit"
     value={chatStore.settings.model}
     on:change={handleModelChange}
@@ -24,4 +25,4 @@
     {#each modelEntries as [id, model]}
         <option value={id}>{model.name}</option>
     {/each}
-</select>
+</input>

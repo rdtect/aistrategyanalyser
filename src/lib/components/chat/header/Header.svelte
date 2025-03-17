@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BotIcon from 'lucide-svelte/icons/bot-message-square';
-	import ModelSelector from './ModelSelector.svelte';
+	// import ModelSelector from './ModelSelector.svelte';
 	import ConnectionStatus from './ConnectionStatus.svelte';
 	import RefreshButton from './RefreshButton.svelte';
 </script>
@@ -12,7 +12,7 @@
 	</div>
 	<div class="flex items-center justify-evenly gap-1.5">
         <ConnectionStatus />
-		<ModelSelector />
+		<!-- <ModelSelector /> -->
 		<RefreshButton />
 	</div>
 </div>

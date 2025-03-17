@@ -12,9 +12,9 @@
 	// Component imports
 	import ChatInput from './ChatInput.svelte';
 	import ChatSidebar from './ChatSidebar.svelte';
-	import ModelSelector from './header/ModelSelector.svelte';
-	import ConnectionStatus from './header/ConnectionStatus.svelte';
-	import RefreshButton from './header/RefreshButton.svelte';
+	// import ModelSelector from './header/ModelSelector.svelte';
+	// import ConnectionStatus from './header/ConnectionStatus.svelte';
+	// import RefreshButton from './header/RefreshButton.svelte';
 	import Header from './header/Header.svelte';
 
 	// Import the chat store
