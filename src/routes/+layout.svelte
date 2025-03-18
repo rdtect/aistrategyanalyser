@@ -1,45 +1,24 @@
-<script lang="ts">
-	import Navigation from './Navigation.svelte';
-	
-
-	import '../app.css';
-
-	
-	let { children } = $props();
-
-	// Try to get analysis data from context (will be undefined on routes without it)
-
+<script>
+  import '../app.css'
+  let { children } = $props();
 </script>
 
-<div class="grid h-screen grid-rows-[auto_1fr_auto] overflow-hidden">
-	<!-- Header -->
-	<header
-		class="bg-surface-900/90 sticky top-0 z-10 flex items-center justify-between p-2 backdrop-blur-2xl"
-	>
-		<div class="flex items-center gap-2">
-			<span class="text-lg font-bold">aiStrategyBot</span>
-			<span class="badge variant-filled-primary">Beta</span>
-		
-		</div>
-		
-	</header>
-	<!-- Grid Columns - Three column layout on large screens -->
-	<div
-		class="grid grid-cols-1 overflow-hidden md:grid-cols-[auto_1fr] xl:grid-cols-[auto_1fr_auto]"
-	>
-		<!-- Navigation Sidebar - Hidden on mobile, visible on md+ -->
-		<aside class="bg-surface-900/20 hidden overflow-y-auto md:block">
-			<Navigation />
-		</aside>
-		<!-- Main Content -->
-		<main class="m-2 h-full overflow-hidden p-2">
-			<!-- Route-specific content -->
-			{@render children()}
-		</main>
-	</div>
-	<!-- Footer -->
-	<footer class="bg-surface-900/90 z-10 flex items-center justify-between p-4">
-		<span>&copy; 2024 AI Strategy and Research Bot using 4c's Framework</span>
-		<span class="text-sm opacity-70">Powered by OGS x rdtect</span>
-	</footer>
+<div class="flex flex-col h-full mx-auto ">
+  <header class="border-b border-surface-200-700dark:border-surface-500 px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center gap-2 m-2">
+      <a href="/" class="text-xl font-bold">AI Strategy Analyzer</a>
+    </div>
+    <nav class="hidden sm:flex gap-4">
+      <a href="/" class="hover:underline">Home</a>
+      <a href="/chats/new" class="hover:underline">New Analysis</a>
+    </nav>
+  </header>
+  
+  <main class="flex-1 container mx-auto my-auto bg-surface-500/20 rounded-xl h-[90vh] overflow-hidden">
+    {@render children()}
+  </main>
+  
+  <footer class="border-t border-surface-200-700 dark:border-surface-500 p-2 text-center text-sm h-fit " >
+    <p>© {new Date().getFullYear()} AI Strategy Analyzer</p>
+  </footer>
 </div>

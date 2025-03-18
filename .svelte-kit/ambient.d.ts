@@ -29,12 +29,11 @@ declare module '$env/static/private' {
 	export const DATABASE_URL: string;
 	export const OPENAI_API_KEY: string;
 	export const OPENAI_ORG_KEY: string;
-	export const aVITE_SUPABASE_URL: string;
-	export const aVITE_SUPABASE_ANON_KEY: string;
+	export const VITE_SUPABASE_URL: string;
+	export const VITE_SUPABASE_ANON_KEY: string;
 	export const NVM_RC_VERSION: string;
 	export const TERM_PROGRAM: string;
 	export const NODE: string;
-	export const INIT_CWD: string;
 	export const NVM_CD_FLAGS: string;
 	export const TERM: string;
 	export const SHELL: string;
@@ -58,7 +57,6 @@ declare module '$env/static/private' {
 	export const SSH_AUTH_SOCK: string;
 	export const __CF_USER_TEXT_ENCODING: string;
 	export const npm_execpath: string;
-	export const BUN_WHICH_IGNORE_CWD: string;
 	export const VIRTUAL_ENV_DISABLE_PROMPT: string;
 	export const PAGER: string;
 	export const LSCOLORS: string;
@@ -67,7 +65,9 @@ declare module '$env/static/private' {
 	export const _: string;
 	export const USER_ZDOTDIR: string;
 	export const __CFBundleIdentifier: string;
+	export const npm_command: string;
 	export const PWD: string;
+	export const npm_lifecycle_event: string;
 	export const npm_package_name: string;
 	export const LANG: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
@@ -82,6 +82,7 @@ declare module '$env/static/private' {
 	export const HOMEBREW_PREFIX: string;
 	export const LESS: string;
 	export const LOGNAME: string;
+	export const npm_lifecycle_script: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const npm_config_user_agent: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
@@ -91,6 +92,7 @@ declare module '$env/static/private' {
 	export const NODE_EXTRA_CA_CERTS: string;
 	export const npm_node_execpath: string;
 	export const COLORTERM: string;
+	export const NODE_ENV: string;
 }
 
 /**
@@ -125,12 +127,11 @@ declare module '$env/dynamic/private' {
 		DATABASE_URL: string;
 		OPENAI_API_KEY: string;
 		OPENAI_ORG_KEY: string;
-		aVITE_SUPABASE_URL: string;
-		aVITE_SUPABASE_ANON_KEY: string;
+		VITE_SUPABASE_URL: string;
+		VITE_SUPABASE_ANON_KEY: string;
 		NVM_RC_VERSION: string;
 		TERM_PROGRAM: string;
 		NODE: string;
-		INIT_CWD: string;
 		NVM_CD_FLAGS: string;
 		TERM: string;
 		SHELL: string;
@@ -154,7 +155,6 @@ declare module '$env/dynamic/private' {
 		SSH_AUTH_SOCK: string;
 		__CF_USER_TEXT_ENCODING: string;
 		npm_execpath: string;
-		BUN_WHICH_IGNORE_CWD: string;
 		VIRTUAL_ENV_DISABLE_PROMPT: string;
 		PAGER: string;
 		LSCOLORS: string;
@@ -163,7 +163,9 @@ declare module '$env/dynamic/private' {
 		_: string;
 		USER_ZDOTDIR: string;
 		__CFBundleIdentifier: string;
+		npm_command: string;
 		PWD: string;
+		npm_lifecycle_event: string;
 		npm_package_name: string;
 		LANG: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
@@ -178,6 +180,7 @@ declare module '$env/dynamic/private' {
 		HOMEBREW_PREFIX: string;
 		LESS: string;
 		LOGNAME: string;
+		npm_lifecycle_script: string;
 		VSCODE_GIT_IPC_HANDLE: string;
 		npm_config_user_agent: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
@@ -187,6 +190,7 @@ declare module '$env/dynamic/private' {
 		NODE_EXTRA_CA_CERTS: string;
 		npm_node_execpath: string;
 		COLORTERM: string;
+		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

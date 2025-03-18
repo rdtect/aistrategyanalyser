@@ -24,7 +24,6 @@
 <hr class="hr">
 	<!-- Chat List with proper scrolling -->
 	<div class="flex-1 overflow-y-auto p-1.5 space-y-1.5">
-		{#each chatStore.chats as chat}
 			<div class="flex items-center gap-2">
 				<button 
 					class="flex-1 text-left p-2 rounded-lg transition-colors duration-200 text-sm

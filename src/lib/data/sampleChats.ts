@@ -1,48 +1,49 @@
 //create types for chat and message
 export interface Message {
-	id: number;
-	sender: 'user' | 'ai';
-	timestamp: string;
-	content: string;
-	status?: 'sending' | 'sent' | 'error';
+  id: number;
+  sender: "user" | "ai";
+  timestamp: string;
+  content: string;
+  status?: "sending" | "sent" | "error";
 }
 
 export interface Chat {
-	id: number;
-	company: string;
-	industry: string;
-	context?: string;
-	region: string;
-	name: string; // Format: Brand,Category,Region
-	messages: Message[];
-	createdAt: string;
+  id: number;
+  company: string;
+  industry: string;
+  context?: string;
+  region: string;
+  name: string; // Format: Brand,Category,Region
+  messages: Message[];
+  createdAt: string;
 }
 
 /**
  * Sample chat data for demonstration purposes
  */
 export const sampleChats: Chat[] = [
-	{
-		id: 0,
-		company: 'Nike',
-		industry: 'Athletic Footwear',
-		region: 'South India',
-		context:
-			"Analysis of Nike's market position, strengths, and challenges in the North American athletic footwear market.",
-		name: 'Nike | Athletic Footwear | North America',
-		createdAt: '2023-10-15T14:30:00Z',
-		messages: [
-			{
-				id: 0,
-				sender: 'user',
-				timestamp: '2:30 PM',
-				content: "Can you analyze Nike's position in the athletic footwear market in North America?"
-			},
-			{
-				id: 1,
-				sender: 'ai',
-				timestamp: '2:30 PM',
-				content: `
+  {
+    id: 0,
+    company: "Nike",
+    industry: "Athletic Footwear",
+    region: "South India",
+    context:
+      "Analysis of Nike's market position, strengths, and challenges in the North American athletic footwear market.",
+    name: "Nike | Athletic Footwear | North America",
+    createdAt: "2025-10-15T14:30:00Z",
+    messages: [
+      {
+        id: 0,
+        sender: "user",
+        timestamp: "2:30 PM",
+        content:
+          "Can you analyze Nike's position in the athletic footwear market in North America?",
+      },
+      {
+        id: 1,
+        sender: "ai",
+        timestamp: "2:30 PM",
+        content: `
 # Nike in North American Athletic Footwear
 
 ## Market Position
@@ -62,30 +63,30 @@ Nike remains the dominant player in North American athletic footwear with approx
 - Balancing premium positioning with mass market appeal
 
 Would you like more specific information about Nike's competitive landscape, consumer trends, or growth opportunities?
-				`
-			}
-		]
-	},
-	{
-		id: 1,
-		company: 'Starbucks',
-		industry: 'Coffee Shops',
-		region: 'Global',
-		name: 'Starbucks | Coffee Shops | Global',
-		createdAt: '2023-10-20T09:15:00Z',
-		messages: [
-			{
-				id: 0,
-				sender: 'user',
-				timestamp: '9:15 AM',
-				content:
-					'What are the current trends in the global coffee shop market that Starbucks should be aware of?'
-			},
-			{
-				id: 1,
-				sender: 'ai',
-				timestamp: '9:15 AM',
-				content: `
+				`,
+      },
+    ],
+  },
+  {
+    id: 1,
+    company: "Starbucks",
+    industry: "Coffee Shops",
+    region: "Global",
+    name: "Starbucks | Coffee Shops | Global",
+    createdAt: "2025-10-20T09:15:00Z",
+    messages: [
+      {
+        id: 0,
+        sender: "user",
+        timestamp: "9:15 AM",
+        content:
+          "What are the current trends in the global coffee shop market that Starbucks should be aware of?",
+      },
+      {
+        id: 1,
+        sender: "ai",
+        timestamp: "9:15 AM",
+        content: `
 # Global Coffee Shop Trends for Starbucks
 
 ## Key Market Trends
@@ -105,31 +106,32 @@ Would you like more specific information about Nike's competitive landscape, con
 Starbucks should consider strengthening its sustainability messaging, expanding specialty offerings, and continuing to innovate in its digital ecosystem to maintain market leadership.
 
 Would you like me to elaborate on any specific trend or region?
-				`
-			}
-		]
-	},
-	{
-		id: 2,
-		company: 'Tesla',
-		industry: 'Electric Vehicles',
-		region: 'Europe',
-		context:
-			"Analysis of Tesla's performance and competitive position in the European electric vehicle market.",
-		name: 'Tesla | Electric Vehicles | Europe',
-		createdAt: '2023-11-05T16:45:00Z',
-		messages: [
-			{
-				id: 0,
-				sender: 'user',
-				timestamp: '4:45 PM',
-				content: 'How is Tesla performing in the European electric vehicle market?'
-			},
-			{
-				id: 1,
-				sender: 'ai',
-				timestamp: '4:45 PM',
-				content: `
+				`,
+      },
+    ],
+  },
+  {
+    id: 2,
+    company: "Tesla",
+    industry: "Electric Vehicles",
+    region: "Europe",
+    context:
+      "Analysis of Tesla's performance and competitive position in the European electric vehicle market.",
+    name: "Tesla | Electric Vehicles | Europe",
+    createdAt: "2025-11-05T16:45:00Z",
+    messages: [
+      {
+        id: 0,
+        sender: "user",
+        timestamp: "4:45 PM",
+        content:
+          "How is Tesla performing in the European electric vehicle market?",
+      },
+      {
+        id: 1,
+        sender: "ai",
+        timestamp: "4:45 PM",
+        content: `
 # Tesla in the European EV Market
 
 ## Market Performance
@@ -152,8 +154,8 @@ Tesla currently holds approximately 13.5% market share in Europe's battery elect
 4. Expanding charging infrastructure in partnership with governments
 
 Would you like more specific information about Tesla's performance in particular European markets or competitive dynamics?
-				`
-			}
-		]
-	}
+				`,
+      },
+    ],
+  },
 ];

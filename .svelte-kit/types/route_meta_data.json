@@ -1,7 +1,31 @@
 {
 	"/": [],
+	"/analyses/new": [],
+	"/analyses/[id]/generate": [],
+	"/analyses/[id]/questions": [],
 	"/api/ai": [
 		"src/routes/api/ai/+server.ts"
+	],
+	"/api/ai/response": [
+		"src/routes/api/ai/response/+server.ts"
+	],
+	"/api/ai/search": [
+		"src/routes/api/ai/search/+server.ts"
+	],
+	"/api/ai/stream": [
+		"src/routes/api/ai/stream/+server.ts"
+	],
+	"/api/analyses": [
+		"src/routes/api/analyses/+server.ts"
+	],
+	"/api/analyses/[id]/questions": [
+		"src/routes/api/analyses/[id]/questions/+server.ts"
+	],
+	"/api/analyses/[id]/responses": [
+		"src/routes/api/analyses/[id]/responses/+server.ts"
+	],
+	"/api/chats/[id]/export": [
+		"src/routes/api/chats/[id]/export/+server.ts"
 	],
 	"/api/chat": [
 		"src/routes/api/chat/+server.ts"
@@ -11,5 +35,25 @@
 	],
 	"/api/indexing": [
 		"src/routes/api/indexing/+server.ts"
+	],
+	"/api/messages": [
+		"src/routes/api/messages/+server.ts"
+	],
+	"/chats": [
+		"src/routes/chats/+page.server.ts",
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/new": [
+		"src/routes/chats/new/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/[id]": [
+		"src/routes/chats/[id]/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/[id]/export": [
+		"src/routes/chats/[id]/export/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
 	]
 }
