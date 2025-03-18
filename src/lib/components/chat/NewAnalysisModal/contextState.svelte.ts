@@ -1,3 +1,5 @@
+import { chatStore } from '../Chat.svelte.ts';
+
 interface AnalysisQuestion {
     id: string;
     question: string;
@@ -80,43 +82,46 @@ export const analysisState = $state<AnalysisStateType>({
     }
 });
 
-export async function initializeAnalysis(): Promise<number> {
+export async function initializeAnalysis(): Promise<string> {
     const selectedQuestionIds = Object.entries(analysisState.selectedQuestions)
         .filter(([, selected]) => selected)
         .map(([id]) => id);
 
-    // Prepare questions first
-    const preparedQuestions = selectedQuestionIds.map(id => {
+    console.log('Selected Question IDs:', selectedQuestionIds);
+
+    // Create new chat first
+    const chatId = await chatStore.createNewChat({
+        name: `Analysis: ${analysisState.companyInfo.company}`,
+        company: analysisState.companyInfo.company,
+        industry: analysisState.companyInfo.industry,
+        region: analysisState.companyInfo.region,
+        context: analysisState.companyInfo.context
+    });
+
+    console.log('New Chat ID:', chatId);
+    console.log('Current Chat Store State:', {
+        chats: chatStore.chats,
+        currentChat: chatStore.currentChat,
+        currentChatId: chatStore.currentChatId
+    });
+
+    // Switch to the new chat
+    chatStore.switchChat(chatId);
+
+    console.log('After Switch - Current Chat:', chatStore.currentChat);
+
+    // Prepare questions with explicit status type
+    const preparedQuestions: AnalysisQuestion[] = selectedQuestionIds.map(id => {
         const questionData = findQuestionById(id);
         return {
             id,
             question: questionData.question,
             prompt: createPrompt(questionData.prompt, analysisState.companyInfo),
-            status: 'pending'
+            status: 'pending' as const // explicitly type as literal
         };
     });
 
-    // Create new chat immediately
-    const newChat: Chat = {
-        id: Math.max(...chats.map(c => c.id), 0) + 1,
-        name: `Analysis: ${analysisState.companyInfo.company}`,
-        messages: [{
-            id: 0,
-            content: `# Starting Analysis for ${analysisState.companyInfo.company}
-                     \nPreparing ${preparedQuestions.length} questions...`,
-            sender: 'ai',
-            timestamp: new Date().toLocaleTimeString(),
-            status: 'sent'
-        }],
-        createdAt: new Date().toISOString(),
-        company: analysisState.companyInfo.company,
-        industry: analysisState.companyInfo.industry,
-        region: analysisState.companyInfo.region
-    };
-
-    // Update state
-    chats = [...chats, newChat];
-    currentChatId = newChat.id;
+    console.log('Prepared Questions:', preparedQuestions);
 
     // Update analysis progress state
     analysisState.analysisProgress = {
@@ -126,7 +131,22 @@ export async function initializeAnalysis(): Promise<number> {
         total: selectedQuestionIds.length
     };
 
-    return newChat.id;
+    // Add initial message to the chat
+    await chatStore.handleAIResponse(`# Analysis Started for ${analysisState.companyInfo.company}
+
+## Company Information
+- Industry: ${analysisState.companyInfo.industry}
+- Region: ${analysisState.companyInfo.region}
+
+Processing ${preparedQuestions.length} analysis questions...`);
+
+    console.log('Final Chat State:', {
+        chats: chatStore.chats,
+        currentChat: chatStore.currentChat,
+        messages: chatStore.messages
+    });
+
+    return chatId;
 }
 
 import type { Chat } from '$lib/data/sampleChats';

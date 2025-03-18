@@ -34,6 +34,7 @@ declare module '$env/static/private' {
 	export const NVM_RC_VERSION: string;
 	export const TERM_PROGRAM: string;
 	export const NODE: string;
+	export const INIT_CWD: string;
 	export const NVM_CD_FLAGS: string;
 	export const TERM: string;
 	export const SHELL: string;
@@ -42,6 +43,7 @@ declare module '$env/static/private' {
 	export const TMPDIR: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const ZDOTDIR: string;
+	export const CURSOR_TRACE_ID: string;
 	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const MallocNanoZone: string;
 	export const AWS_CA_BUNDLE: string;
@@ -54,38 +56,32 @@ declare module '$env/static/private' {
 	export const COMMAND_MODE: string;
 	export const REQUESTS_CA_BUNDLE: string;
 	export const SSH_AUTH_SOCK: string;
-	export const VSCODE_PROFILE_INITIALIZED: string;
 	export const __CF_USER_TEXT_ENCODING: string;
 	export const npm_execpath: string;
+	export const BUN_WHICH_IGNORE_CWD: string;
 	export const VIRTUAL_ENV_DISABLE_PROMPT: string;
 	export const PAGER: string;
-	export const PYDEVD_DISABLE_FILE_VALIDATION: string;
 	export const LSCOLORS: string;
 	export const PATH: string;
 	export const npm_package_json: string;
 	export const _: string;
 	export const USER_ZDOTDIR: string;
 	export const __CFBundleIdentifier: string;
-	export const npm_command: string;
 	export const PWD: string;
-	export const npm_lifecycle_event: string;
 	export const npm_package_name: string;
 	export const LANG: string;
-	export const BUNDLED_DEBUGPY_PATH: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 	export const XPC_FLAGS: string;
 	export const npm_package_version: string;
 	export const GIT_SSL_CAPATH: string;
 	export const XPC_SERVICE_NAME: string;
 	export const VSCODE_INJECTION: string;
-	export const VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 	export const SHLVL: string;
 	export const HOME: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
 	export const HOMEBREW_PREFIX: string;
 	export const LESS: string;
 	export const LOGNAME: string;
-	export const npm_lifecycle_script: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const npm_config_user_agent: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
@@ -95,7 +91,6 @@ declare module '$env/static/private' {
 	export const NODE_EXTRA_CA_CERTS: string;
 	export const npm_node_execpath: string;
 	export const COLORTERM: string;
-	export const NODE_ENV: string;
 }
 
 /**
@@ -135,6 +130,7 @@ declare module '$env/dynamic/private' {
 		NVM_RC_VERSION: string;
 		TERM_PROGRAM: string;
 		NODE: string;
+		INIT_CWD: string;
 		NVM_CD_FLAGS: string;
 		TERM: string;
 		SHELL: string;
@@ -143,6 +139,7 @@ declare module '$env/dynamic/private' {
 		TMPDIR: string;
 		TERM_PROGRAM_VERSION: string;
 		ZDOTDIR: string;
+		CURSOR_TRACE_ID: string;
 		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		MallocNanoZone: string;
 		AWS_CA_BUNDLE: string;
@@ -155,38 +152,32 @@ declare module '$env/dynamic/private' {
 		COMMAND_MODE: string;
 		REQUESTS_CA_BUNDLE: string;
 		SSH_AUTH_SOCK: string;
-		VSCODE_PROFILE_INITIALIZED: string;
 		__CF_USER_TEXT_ENCODING: string;
 		npm_execpath: string;
+		BUN_WHICH_IGNORE_CWD: string;
 		VIRTUAL_ENV_DISABLE_PROMPT: string;
 		PAGER: string;
-		PYDEVD_DISABLE_FILE_VALIDATION: string;
 		LSCOLORS: string;
 		PATH: string;
 		npm_package_json: string;
 		_: string;
 		USER_ZDOTDIR: string;
 		__CFBundleIdentifier: string;
-		npm_command: string;
 		PWD: string;
-		npm_lifecycle_event: string;
 		npm_package_name: string;
 		LANG: string;
-		BUNDLED_DEBUGPY_PATH: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
 		XPC_FLAGS: string;
 		npm_package_version: string;
 		GIT_SSL_CAPATH: string;
 		XPC_SERVICE_NAME: string;
 		VSCODE_INJECTION: string;
-		VSCODE_DEBUGPY_ADAPTER_ENDPOINTS: string;
 		SHLVL: string;
 		HOME: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
 		HOMEBREW_PREFIX: string;
 		LESS: string;
 		LOGNAME: string;
-		npm_lifecycle_script: string;
 		VSCODE_GIT_IPC_HANDLE: string;
 		npm_config_user_agent: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
@@ -196,7 +187,6 @@ declare module '$env/dynamic/private' {
 		NODE_EXTRA_CA_CERTS: string;
 		npm_node_execpath: string;
 		COLORTERM: string;
-		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}
