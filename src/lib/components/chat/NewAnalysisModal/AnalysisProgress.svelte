@@ -2,9 +2,11 @@
     import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
     import { analysisState, initializeAnalysis } from './contextState.svelte.ts';
     import { chatStore } from '../Chat.svelte.ts';
+    import { goto } from '$app/navigation';
 
-    let { onClose } = $props<{
-        onClose: () => void;
+    let { onComplete, onError } = $props<{
+        onComplete?: () => void;
+        onError?: () => void;
     }>();
 
     let isPreparationComplete = $state(false);
@@ -14,9 +16,11 @@
         try {
             await initializeAnalysis();
             isPreparationComplete = true;
+            if (onComplete) onComplete();
         } catch (err) {
             error = err instanceof Error ? err.message : 'Failed to prepare analysis';
             console.error('Error preparing analysis:', err);
+            if (onError) onError();
         }
     }
 
@@ -55,7 +59,10 @@
                 <div class="flex justify-center w-full">
                     <button 
                         class="btn variant-filled-primary"
-                        onclick={onClose}
+                        onclick={() => {
+                            if (onComplete) onComplete();
+                            goto(`/chats/${chatStore.currentChatId}`);
+                        }}
                     >
                         Go to Analysis Chat
                     </button>

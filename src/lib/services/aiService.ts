@@ -36,44 +36,39 @@ export async function createAIResponse(
   }
 }
 
-export function createStreamingCompletion() {
+export function createStreamingResponse() {
   // State to track current stream
   let currentStream: { cancel: () => void } | null = $state(null);
 
-  // Create completion with streaming
-  async function streamCompletion(
-    chatId: string,
-    messages: Message[],
-    signal?: AbortSignal
+  // Create response with streaming
+  async function streamResponse(
+    input: string,
+    options: {
+      previousResponseId?: string;
+      instructions?: string;
+      model?: string;
+      signal?: AbortSignal;
+    } = {}
   ) {
-    // Convert our message format to OpenAI format
-    const openaiMessages = messages.map((msg) => ({
-      role: msg.sender === "user" ? "user" : "assistant",
-      content: msg.content,
-    }));
-
-    // Add system message for 4C's framework
-    openaiMessages.unshift({
-      role: "system",
-      content:
-        "You are an AI strategy analyst using the 4C's framework (Company, Customers, Competitors, Context). Analyze business strategy questions with this framework, providing structured insights.",
-    });
-
     try {
-      // Create the completion with streaming
-      const stream = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: openaiMessages,
+      // Create the streaming response
+      const stream = await openai.responses.create({
+        model: options.model || "gpt-4o",
+        input,
         stream: true,
-        temperature: 0.7,
-        max_tokens: 2000,
-        signal,
+        instructions:
+          options.instructions ||
+          "You are an AI strategy analyst using the 4C's framework (Company, Customers, Competitors, Context). Analyze business strategy questions with this framework, providing structured insights.",
+        ...(options.previousResponseId
+          ? { previous_response_id: options.previousResponseId }
+          : {}),
+        signal: options.signal,
       });
 
       // Set up stream handler for cancellation
       currentStream = {
         cancel: () => {
-          signal?.abort();
+          options.signal?.abort();
           currentStream = null;
         },
       };
@@ -97,7 +92,7 @@ export function createStreamingCompletion() {
   const isStreaming = $derived(!!currentStream);
 
   return {
-    streamCompletion,
+    streamResponse,
     cancelStream,
     isStreaming,
   };

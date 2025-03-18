@@ -2,12 +2,14 @@
     import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
     import { analysisState, processAnalysis } from './contextState.svelte.ts';
     import { goto } from '$app/navigation';
-    import {onMount} from 'svelte';
+    import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
     
-    let {onComplete}= $props<{onComplete: () => void}>();
+    let { onComplete } = $props<{onComplete: () => void}>();
     
     let progressValue = $state(0);
     let processing = $state(true);
+    let error = $state<string | null>(null);
     
     // Calculate progress based on completed questions
     $effect(() => {
@@ -20,12 +22,25 @@
         try {
             const chatId = await processAnalysis();
             processing = false;
-            // Navigate to the new chat
-            goto(`/chat/${chatId}`);
-            onComplete();
+            
+            // Dispatch a custom event to update UI in other components
+            if (browser) {
+                window.dispatchEvent(
+                    new CustomEvent("userChatsUpdated", {
+                        detail: { newChatId: chatId }
+                    })
+                );
+            }
+            
+            // Navigate to the new chat with a small delay to ensure state updates
+            setTimeout(() => {
+                goto(`/chats/${chatId}`);
+                onComplete();
+            }, 300);
         } catch (error) {
             console.error('Failed to process analysis:', error);
             processing = false;
+            error = error instanceof Error ? error.message : 'Failed to process analysis';
         }
     });
 </script>
@@ -46,6 +61,9 @@
         {#if processing}
             <p>Analyzing {analysisState.companyInfo.company}...</p>
             <p class="text-sm opacity-70">Processing question {analysisState.analysisProgress.currentIndex + 1} of {analysisState.analysisProgress.total}</p>
+        {:else if error}
+            <p class="text-error-500">Error: {error}</p>
+            <button class="btn variant-soft mt-2" onclick={() => analysisState.step = 2}>Go Back</button>
         {:else}
             <p>Analysis complete!</p>
             <p class="text-sm opacity-70">Redirecting to chat...</p>

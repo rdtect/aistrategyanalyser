@@ -1,5 +1,12 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
+import OpenAI from "openai";
+import { OPENAI_API_KEY } from "$env/static/private";
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 // Sample responses for POC
 const sampleResponses = {
@@ -15,43 +22,51 @@ const sampleResponses = {
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
-    const { message, chatId } = await request.json();
+    const { message, chatId, context } = await request.json();
 
     if (!message) {
       return json({ error: "No message provided" }, { status: 400 });
     }
 
-    // Determine which sample response to use based on the message content
-    let responseText = sampleResponses.default;
+    // Create a streaming response using the new Responses API
+    const response = await openai.responses.create({
+      model: "gpt-4o",
+      input: message,
+      stream: true,
+      instructions:
+        "You are an AI strategy analyst using the 4C's framework (Company, Customers, Competitors, Context).",
+      // Optional context from previous conversation
+      ...(context?.previousResponseId
+        ? { previous_response_id: context.previousResponseId }
+        : {}),
+    });
 
-    // Simple keyword matching for demo
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes("apple")) {
-      responseText = sampleResponses.apple;
-    } else if (lowerMessage.includes("tesla")) {
-      responseText = sampleResponses.tesla;
-    } else if (
-      lowerMessage.includes("unilever") ||
-      lowerMessage.includes("p&g")
-    ) {
-      responseText = sampleResponses.unilever;
-    }
-
-    // Create a streaming response
+    // Create a ReadableStream from the OpenAI streaming response
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          // Split the response into words for simulated streaming
-          const words = responseText.split(" ");
-
-          // Stream each word with a small delay
-          for (const word of words) {
-            // Add random delay (20-100ms) to simulate typing
-            await new Promise((resolve) =>
-              setTimeout(resolve, 20 + Math.random() * 80)
-            );
-            controller.enqueue(encoder.encode(word + " "));
+          // Process the streaming response
+          let text = "";
+          for await (const chunk of response) {
+            // Check for text content in the chunk
+            if (chunk.output && chunk.output.length > 0) {
+              for (const item of chunk.output) {
+                if (
+                  item.type === "message" &&
+                  item.content &&
+                  item.content.length > 0
+                ) {
+                  for (const content of item.content) {
+                    if (content.type === "output_text" && content.text) {
+                      const newText = content.text;
+                      text += newText;
+                      controller.enqueue(encoder.encode(newText));
+                    }
+                  }
+                }
+              }
+            }
           }
 
           controller.close();

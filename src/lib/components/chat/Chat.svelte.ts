@@ -88,8 +88,28 @@ async function generateAIResponse(message: string, context?: unknown) {
 // Export store with initialization method
 export const chatStore = {
   init(initialChats: Chat[]) {
-    chats = initialChats;
-    currentChatId = initialChats[0]?.id ?? null;
+    // Start with provided initial chats
+    let allChats = [...initialChats];
+
+    // If in browser, try to load additional user chats from localStorage
+    if (browser) {
+      try {
+        const storedChats = JSON.parse(
+          localStorage.getItem("userChats") || "[]"
+        );
+        // Add any stored chats that don't exist in initialChats
+        storedChats.forEach((storedChat: Chat) => {
+          if (!allChats.find((c) => c.id === storedChat.id)) {
+            allChats.push(storedChat);
+          }
+        });
+      } catch (error) {
+        console.error("Failed to load chats from localStorage:", error);
+      }
+    }
+
+    chats = allChats;
+    currentChatId = allChats[0]?.id ?? null;
   },
 
   get chats() {
@@ -134,6 +154,29 @@ export const chatStore = {
     };
     chats = [...chats, newChat];
     currentChatId = newChat.id;
+
+    // Store in localStorage if in browser
+    if (browser) {
+      try {
+        const storedChats = JSON.parse(
+          localStorage.getItem("userChats") || "[]"
+        );
+        localStorage.setItem(
+          "userChats",
+          JSON.stringify([...storedChats, newChat])
+        );
+
+        // Dispatch event to notify that user chats have been updated
+        window.dispatchEvent(
+          new CustomEvent("userChatsUpdated", {
+            detail: { newChatId: newChat.id },
+          })
+        );
+      } catch (error) {
+        console.error("Failed to store chat in localStorage:", error);
+      }
+    }
+
     return newChat.id;
   },
 
@@ -186,13 +229,13 @@ export const chatStore = {
   async handleAIResponse(response: string): Promise<void> {
     if (!response || !this.currentChat) return;
 
-    const formattedResponse = this.formatMessage(response);
-
+    // Rather than formatting the response, we'll use it directly
+    // since it's coming formatted from our application, not the API
     const aiMessage: Message = {
-      id: this.generateMessageId(this.messages), // Pass this.messages as argument
-      content: formattedResponse,
+      id: crypto.randomUUID(),
+      content: response,
       sender: "ai",
-      timestamp: this.getTimestamp(),
+      timestamp: new Date(),
       status: "sent",
     };
 

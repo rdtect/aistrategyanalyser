@@ -34,20 +34,20 @@
   }
 </script>
 
-<div class="flex {message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4">
+<div class="flex {message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 mx-4">
   <div 
-    class="max-w-[80%] rounded-lg {
+    class="max-w-[80%] rounded-lg gap-4 {
       message.sender === 'user' 
-        ? 'bg-primary-500 text-white' 
-        : 'bg-surface-500/20 text-white'
+        ? 'bg-primary-200-800 text-surface-contrast-100-900' 
+        : 'bg-surface-500/20 text-surface-contrast-100-900'
     } p-4"
   >
-    <div class="flex justify-between text-xs mb-2">
+    <div class="flex justify-between text-xs mb-2 gap-4">
       <span class="font-semibold">{message.sender === 'user' ? 'You' : 'AI Assistant'}</span>
       <span class="opacity-75">{formatTime(message.timestamp)}</span>
     </div>
     
-    <div class="prose prose-sm prose-invert">
+    <div class="prose prose-sm prose-invert ">
       {@html formatContent(message.content, message.sender === 'user')}
     </div>
     

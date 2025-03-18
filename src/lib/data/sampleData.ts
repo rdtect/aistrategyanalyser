@@ -1,6 +1,14 @@
 // Sample chat data for POC
 export const sampleChats = [
   {
+    id: "0",
+    name: "Getting Started with Strategy Analysis",
+    createdAt: new Date(2023, 1, 10),
+    company: "Example Corp",
+    industry: "Technology",
+    region: "Global",
+  },
+  {
     id: "1",
     name: "Apple Inc. Strategy Analysis",
     createdAt: new Date(2023, 2, 15),
@@ -28,6 +36,31 @@ export const sampleChats = [
 
 // Sample messages for each chat
 export const sampleMessages = {
+  "0": [
+    {
+      id: "001",
+      content:
+        "Welcome to the Strategy Analysis Tool! I'm here to help you analyze business strategies using the 4Cs framework. What would you like to know?",
+      sender: "ai",
+      timestamp: new Date(2023, 1, 10, 9, 0),
+      status: "sent",
+    },
+    {
+      id: "002",
+      content: "What is the 4Cs framework?",
+      sender: "user",
+      timestamp: new Date(2023, 1, 10, 9, 1),
+      status: "sent",
+    },
+    {
+      id: "003",
+      content:
+        "# The 4Cs Framework\n\nThe 4Cs framework is a strategic analysis tool that helps businesses evaluate their strategic position from four key perspectives:\n\n## 1. Company\nAnalysis of internal factors including resources, capabilities, strengths, weaknesses, and competitive advantages.\n\n## 2. Customers\nUnderstanding customer needs, segments, behaviors, and how the company creates value for them.\n\n## 3. Competition\nAnalysis of competitors, their strategies, market positioning, and how the company differentiates itself.\n\n## 4. Capabilities\nEvaluation of core competencies, technologies, processes, and skills that enable the company to compete effectively.\n\nThis framework provides a holistic view of a company's strategic landscape and helps identify opportunities for competitive advantage and growth.",
+      sender: "ai",
+      timestamp: new Date(2023, 1, 10, 9, 2),
+      status: "sent",
+    },
+  ],
   "1": [
     {
       id: "101",

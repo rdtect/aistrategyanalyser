@@ -6,24 +6,6 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Define interface for the OpenAI response structure
-interface ResponseOutput {
-  type: string;
-  web_search?: {
-    results: Array<{
-      title?: string;
-      url?: string;
-      snippet?: string;
-    }>;
-  };
-}
-
-interface SearchResult {
-  title?: string;
-  url?: string;
-  snippet?: string;
-}
-
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const { input, options = {}, chatId } = await request.json();
@@ -39,38 +21,57 @@ export const POST: RequestHandler = async ({ request }) => {
       instructions:
         options?.system ||
         "You are an AI strategy analyst using the 4C's framework (Company, Customers, Competitors, Context).",
+      ...(options?.previousResponseId
+        ? { previous_response_id: options.previousResponseId }
+        : {}),
     });
 
     // Log performance metrics
     const duration = Date.now() - startTime;
     console.log(`AI response generated in ${duration}ms for chat ${chatId}`);
 
-    // Extract sources if web search was used
-    let sources: Array<{ title: string; url: string; snippet: string }> = [];
+    // Extract text content from response
+    let textContent = "";
+    let sources = [];
 
-    // Process response for sources (from web search tools)
-    // Use the actual response structure - access any potential tool outputs safely
-    const responseObj = response as any;
-    if (responseObj && responseObj.tool_outputs) {
-      const webSearchOutputs = responseObj.tool_outputs.filter(
-        (output: ResponseOutput) => output.type === "web_search"
-      );
+    if (response && response.output) {
+      for (const item of response.output) {
+        if (item.type === "message" && item.content) {
+          for (const content of item.content) {
+            if (content.type === "output_text") {
+              textContent += content.text;
 
-      for (const webSearchOutput of webSearchOutputs) {
-        if (webSearchOutput.web_search?.results) {
-          sources = webSearchOutput.web_search.results.map(
-            (result: SearchResult) => ({
-              title: result.title || "",
-              url: result.url || "",
-              snippet: result.snippet || "",
-            })
-          );
+              // Extract any annotations (like web sources)
+              if (content.annotations && content.annotations.length > 0) {
+                sources = content.annotations.map((annotation: any) => ({
+                  title: annotation.title || "",
+                  url: annotation.url || "",
+                  snippet:
+                    content.text.substring(
+                      annotation.start_index,
+                      annotation.end_index
+                    ) || "",
+                }));
+              }
+            }
+          }
+        }
+
+        // Also check for web search call results
+        if (item.type === "web_search_call" && item.status === "completed") {
+          // Web search results might be available in the tool outputs
+          // We'll handle this in a more robust implementation
         }
       }
     }
 
     return json({
-      response,
+      response: {
+        id: response.id,
+        content: textContent,
+        modelName: response.model,
+        usage: response.usage,
+      },
       sources,
     });
   } catch (error: unknown) {

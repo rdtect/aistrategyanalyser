@@ -179,19 +179,14 @@
             </form>
         {:else if analysisState.step === 3}
             <AnalysisProgress
-                formData={{
-                    company: analysisState.companyInfo.company,
-                    region: analysisState.companyInfo.region,
-                    industry: analysisState.companyInfo.industry,
-                    context: analysisState.companyInfo.context,
-                    selectedQuestions: analysisState.selectedQuestions
-                }}
                 onComplete={() => {
                     handleClose();
-                    // Optionally navigate to the new chat
+                    // Navigation now happens in the AnalysisProgress or Screen3Progress component
+                    // No need to handle navigation here, as it would be redundant
                 }}
                 onError={() => {
                     // Handle error state
+                    console.error("Analysis preparation failed");
                 }}
             />
         {:else}

@@ -12,7 +12,8 @@ export const nodes = [
 	() => import('./nodes/8'),
 	() => import('./nodes/9'),
 	() => import('./nodes/10'),
-	() => import('./nodes/11')
+	() => import('./nodes/11'),
+	() => import('./nodes/12')
 ];
 
 export const server_loads = [2];
@@ -25,7 +26,8 @@ export const dictionary = {
 		"/chats": [~8,[2]],
 		"/chats/new": [~11,[2]],
 		"/chats/[id]": [~9,[2],[,3]],
-		"/chats/[id]/export": [~10,[2],[,3]]
+		"/chats/[id]/export": [~10,[2],[,3]],
+		"/settings": [12]
 	};
 
 export const hooks = {

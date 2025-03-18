@@ -131,12 +131,12 @@
   }
 </script>
 
-<div class="flex flex-col h-fit max-h-full overflow-hidden px-8">
+<div class="flex flex-col h-full overflow-hidden px-4 py-2">
   {#if data?.chat}
     <!-- Header with reduced height -->
-    <header class=" border-b bg-surface-100-800-token">
+    <header class="mx-4 border-b bg-surface-100-800-token">
       <h1 class="text-lg font-bold truncate">{data.chat.name || "Chat"}</h1>
-      <div class="flex gap-2 text-xs text-surface-300 truncate">
+      <div class="my-2 flex gap-2 text-xs text-surface-300 truncate">
         {#if data.chat.company}
           <span>{data.chat.company}</span>
         {/if}
@@ -151,7 +151,7 @@
 
     <!-- Messages container takes remaining space -->
     <div
-      class="flex-1 overflow-y-auto p-2 m-2 space-y-2 min-h-0"
+      class="flex-1 overflow-y-auto py-4 space-y-4 min-h-0"
       bind:this={messagesContainer}
     >
       {#if data.messages && data.messages.length > 0}
@@ -187,28 +187,41 @@
       {/if}
     </div>
 
-    <!-- Footer with strictly enforced height -->
-    <div class="border-t bg-surface-100-800-token shrink-0 h-8 min-h-[2rem] max-h-8 p-1">
+    <!-- Input bar with fixed height -->
+    <div class="border-t bg-surface-100-800-token py-2 shrink-0">
       {#if data.chat?.id}
-        <div class="input-group grid grid-cols-[1fr_auto] h-full">
+        <div class="input-group grid grid-cols-[1fr_auto]">
           <textarea
-            class="input rounded-l resize-none text-sm py-0"
+            class="input rounded-l resize-none text-sm py-2"
             placeholder="Type your message..."
             bind:value={messageText}
             onkeydown={handleKeydown}
             disabled={isSubmitting}
-            rows="1"
+            rows="2"
           ></textarea>
           <button
             type="button"
-            class="btn variant-filled-primary rounded-r h-full text-sm px-3 py-0"
+            class="btn variant-filled-primary bg-primary-500/20 rounded-r h-full text-sm px-3"
             disabled={isSubmitting || !messageText.trim()}
             onclick={handleSubmit}
           >
             {#if isSubmitting}
               <span class="loading loading-spinner loading-sm"></span>
             {:else}
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><line x1="22" y1="2" x2="11" y2="13"></line><polygon
+                  points="22 2 15 22 11 13 2 9 22 2"
+                ></polygon></svg
+              >
             {/if}
           </button>
         </div>

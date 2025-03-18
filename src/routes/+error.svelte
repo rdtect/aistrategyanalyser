@@ -1,5 +1,5 @@
 <script>
-  import { page } from '$app/state';
+  import { page } from '$app/stores';
 </script>
 
 <div class="container h-full flex justify-center items-center flex-col gap-4 p-4">
