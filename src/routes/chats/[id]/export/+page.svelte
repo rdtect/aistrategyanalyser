@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { saveAs } from 'file-saver';
+  // No more import for file-saver
+  
+  // Import type definitions imported in d.ts file
   
   let { data } = $props<{ 
     data: { 
@@ -9,15 +11,46 @@
       html: string
     }
   }>();
+
+  // Check if FileSystem Access API is supported
+  const supportsFileSystemAccess = 'showSaveFilePicker' in window;
   
-  // Save as markdown file
-  function downloadMarkdown() {
-    const blob = new Blob([data.markdown], { type: 'text/markdown;charset=utf-8' });
-    saveAs(blob, `${data.chat.name.replace(/\s+/g, '_')}_analysis.md`);
+  // Save as markdown file using File System Access API
+  async function downloadMarkdown() {
+    const fileName = `${data.chat.name.replace(/\s+/g, '_')}_analysis.md`;
+    const content = data.markdown;
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    
+    try {
+      if (supportsFileSystemAccess && window.showSaveFilePicker) {
+        // Use modern File System Access API
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'Markdown File',
+            accept: {'text/markdown': ['.md']},
+          }],
+        });
+        
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback for browsers without File System Access API
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    } catch (error) {
+      console.error('Error exporting markdown:', error);
+      alert('Failed to save file. Please try again.');
+    }
   }
   
-  // Save as HTML file
-  function downloadHTML() {
+  // Save as HTML file using File System Access API
+  async function downloadHTML() {
     // Create complete HTML document
     const htmlDoc = `
       <!DOCTYPE html>
@@ -38,8 +71,74 @@
       </html>
     `;
     
+    const fileName = `${data.chat.name.replace(/\s+/g, '_')}_analysis.html`;
     const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-    saveAs(blob, `${data.chat.name.replace(/\s+/g, '_')}_analysis.html`);
+    
+    try {
+      if (supportsFileSystemAccess && window.showSaveFilePicker) {
+        // Use modern File System Access API
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'HTML File',
+            accept: {'text/html': ['.html']},
+          }],
+        });
+        
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback for browsers without File System Access API
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    } catch (error) {
+      console.error('Error exporting HTML:', error);
+      alert('Failed to save file. Please try again.');
+    }
+  }
+  
+  // Export JSON format
+  async function downloadJSON() {
+    const jsonData = {
+      chat: data.chat,
+      analysis: data.analysis,
+      exportedAt: new Date().toISOString()
+    };
+    
+    const fileName = `${data.chat.name.replace(/\s+/g, '_')}_analysis.json`;
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json;charset=utf-8' });
+    
+    try {
+      if (supportsFileSystemAccess && window.showSaveFilePicker) {
+        // Use modern File System Access API
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: fileName,
+          types: [{
+            description: 'JSON File',
+            accept: {'application/json': ['.json']},
+          }],
+        });
+        
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+      } else {
+        // Fallback for browsers without File System Access API
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+    } catch (error) {
+      console.error('Error exporting JSON:', error);
+      alert('Failed to save file. Please try again.');
+    }
   }
 </script>
 
@@ -53,7 +152,15 @@
       <button onclick={downloadHTML} class="btn variant-filled-secondary">
         Download HTML
       </button>
+      <button onclick={downloadJSON} class="btn variant-filled">
+        Download JSON
+      </button>
     </div>
+    {#if !supportsFileSystemAccess}
+      <p class="text-sm text-orange-500 mt-2">
+        Note: Your browser doesn't support the modern File System API. Files will download automatically.
+      </p>
+    {/if}
   </header>
   
   <div class="card p-6">

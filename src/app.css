@@ -15,25 +15,96 @@ body {
 }
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Themed gradient background */
 [data-theme="cerberus"] {
   background-image:
     radial-gradient(
-      at 24% 25%,
-      color-mix(in oklab, var(--color-primary-500) 30%, transparent) 0px,
-      transparent 30%
+      at 25% 25%,
+      color-mix(in oklab, var(--color-primary-400) 35%, transparent) 0px,
+      transparent 40%
     ),
     radial-gradient(
-      at 35% 13%,
-      color-mix(in oklab, var(--color-success-500) 18%, transparent) 0px,
-      transparent 30%
+      at 75% 20%,
+      color-mix(in oklab, var(--color-primary-700) 20%, transparent) 0px,
+      transparent 45%
     ),
     radial-gradient(
-      at 100% 64%,
-      color-mix(in oklab, var(--color-error-500) 3%, transparent) 0px,
+      at 85% 60%,
+      color-mix(in oklab, var(--color-success-300) 15%, transparent) 0px,
+      transparent 50%
+    ),
+    radial-gradient(
+      at 15% 75%,
+      color-mix(in oklab, var(--color-amber-300) 10%, transparent) 0px,
       transparent 40%
     );
   background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: 200% 200%;
+  animation: gradient-shift 60s ease infinite;
+}
+
+/* Enhanced animated gradient background for components */
+.animated-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--color-primary-500-rgb), 0.04) 0%,
+    rgba(var(--color-primary-700-rgb), 0.06) 25%,
+    rgba(var(--color-tertiary-500-rgb), 0.05) 50%,
+    rgba(var(--color-primary-800-rgb), 0.04) 75%,
+    rgba(var(--color-primary-500-rgb), 0.04) 100%
+  );
+  background-size: 300% 300%;
+  animation: gradient 30s ease infinite;
+  border: 1px solid rgba(var(--color-surface-500-rgb), 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.animated-gradient:hover {
+  background-size: 250% 250%;
+  animation-duration: 10s;
+  border: 1px solid rgba(var(--color-primary-500-rgb), 0.15);
+}
+
+/* Background animation keyframes */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* More dynamic shifting for the main background */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Add RGB versions of theme colors for rgba() usage */
+:root {
+  --color-primary-500-rgb: 59, 130, 246;
+  --color-primary-700-rgb: 29, 78, 216;
+  --color-primary-800-rgb: 30, 64, 175;
+  --color-tertiary-500-rgb: 168, 85, 247;
+  --color-surface-500-rgb: 107, 114, 128;
 }

@@ -1,0 +1,509 @@
+/**
+ * MemoryStore - Svelte 5 runes-based store for memory bank state management
+ * Provides a centralized way to manage memory data across components
+ */
+
+import type {
+  MemoryItem,
+  MemoryFilter,
+  MemoryCategory,
+  MemorySource,
+  MemoryBankStats,
+} from "../types/memory";
+import { MemoryStorageManager } from "../services/MemoryStorageManager";
+import { browser } from "$app/environment";
+
+/**
+ * MemoryStore class using Svelte 5 runes for state management
+ */
+class MemoryStore {
+  // Storage manager instance
+  private storageManager = new MemoryStorageManager();
+
+  // State runes for reactive data - initialized as class fields
+  memories = $state<Record<string, MemoryItem>>({});
+  activeMemoryId = $state<string | null>(null);
+  filter = $state<MemoryFilter>({
+    sortBy: "updatedAt",
+    sortDirection: "desc",
+  });
+  isLoading = $state<boolean>(false);
+  error = $state<string | null>(null);
+
+  // Derived runes for computed values
+  activeMemory = $derived.by(() => {
+    const memoryId = this.activeMemoryId;
+    return memoryId ? this.memories[memoryId] : null;
+  });
+
+  filteredMemories = $derived.by(() => {
+    const memoriesArray = Object.values(this.memories);
+    let result = [...memoriesArray];
+
+    // Apply filters
+    if (this.filter.searchTerm) {
+      const searchTermLower = this.filter.searchTerm.toLowerCase();
+      result = result.filter(
+        (memory) =>
+          memory.content.toLowerCase().includes(searchTermLower) ||
+          memory.tags.some((tag) =>
+            tag.toLowerCase().includes(searchTermLower),
+          ),
+      );
+    }
+
+    if (this.filter.categories && this.filter.categories.length > 0) {
+      result = result.filter((memory) =>
+        this.filter.categories!.includes(memory.category),
+      );
+    }
+
+    if (this.filter.sources && this.filter.sources.length > 0) {
+      result = result.filter((memory) =>
+        this.filter.sources!.includes(memory.source),
+      );
+    }
+
+    if (this.filter.tags && this.filter.tags.length > 0) {
+      result = result.filter((memory) =>
+        this.filter.tags!.some((tag) => memory.tags.includes(tag)),
+      );
+    }
+
+    if (this.filter.dateRange) {
+      if (this.filter.dateRange.start) {
+        const startDate = new Date(this.filter.dateRange.start).getTime();
+        result = result.filter(
+          (memory) => new Date(memory.createdAt).getTime() >= startDate,
+        );
+      }
+
+      if (this.filter.dateRange.end) {
+        const endDate = new Date(this.filter.dateRange.end).getTime();
+        result = result.filter(
+          (memory) => new Date(memory.createdAt).getTime() <= endDate,
+        );
+      }
+    }
+
+    // Apply sorting
+    const sortField = this.filter.sortBy || "updatedAt";
+    const sortDirection = this.filter.sortDirection || "desc";
+
+    result.sort((a, b) => {
+      let valueA, valueB;
+
+      if (sortField === "relevance") {
+        valueA = a.relevanceScore || 0;
+        valueB = b.relevanceScore || 0;
+      } else if (sortField === "createdAt" || sortField === "updatedAt") {
+        valueA = new Date(a[sortField]).getTime();
+        valueB = new Date(b[sortField]).getTime();
+      } else {
+        valueA = a[sortField as keyof MemoryItem] || "";
+        valueB = b[sortField as keyof MemoryItem] || "";
+      }
+
+      if (sortDirection === "asc") {
+        return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+      } else {
+        return valueA > valueB ? -1 : valueA < valueB ? 1 : 0;
+      }
+    });
+
+    return result;
+  });
+
+  memoryStats = $derived.by((): MemoryBankStats => {
+    const memoriesArray = Object.values(this.memories);
+
+    // Initialize category and source counts
+    const categoryCounts: Record<MemoryCategory, number> = {
+      fact: 0,
+      insight: 0,
+      question: 0,
+      action: 0,
+      reference: 0,
+      custom: 0,
+    };
+
+    const sourceCounts: Record<MemorySource, number> = {
+      chat: 0,
+      user: 0,
+      document: 0,
+      web: 0,
+      system: 0,
+    };
+
+    // Count tags
+    const tagCounts: Record<string, number> = {};
+
+    // Process each memory
+    memoriesArray.forEach((memory) => {
+      // Count categories
+      categoryCounts[memory.category]++;
+
+      // Count sources
+      sourceCounts[memory.source]++;
+
+      // Count tags
+      memory.tags.forEach((tag) => {
+        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+      });
+    });
+
+    // Get top tags (sorted by count)
+    const topTags = Object.entries(tagCounts)
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return {
+      totalMemories: memoriesArray.length,
+      categoryCounts,
+      sourceCounts,
+      topTags,
+      lastUpdated: new Date().toISOString(),
+    };
+  });
+
+  /**
+   * Initialize the store and load memories from storage
+   */
+  constructor() {
+    if (browser) {
+      this.loadMemories();
+
+      // Listen for storage updates from other tabs/components
+      window.addEventListener("userMemoriesUpdated", (event) => {
+        const detail = (event as CustomEvent).detail;
+        if (detail?.memoryId) {
+          this.refreshMemory(detail.memoryId);
+        } else {
+          this.loadMemories();
+        }
+      });
+    }
+  }
+
+  /**
+   * Load all memories from storage
+   */
+  async loadMemories(): Promise<void> {
+    try {
+      this.isLoading = true;
+      this.error = null;
+
+      const memories = await this.storageManager.getAllMemories();
+      const memoriesMap: Record<string, MemoryItem> = {};
+
+      memories.forEach((memory) => {
+        memoriesMap[memory.id] = memory;
+      });
+
+      this.memories = memoriesMap;
+      this.isLoading = false;
+    } catch (error) {
+      console.error("Error loading memories:", error);
+      this.error = "Failed to load memories";
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Refresh a specific memory from storage
+   */
+  async refreshMemory(memoryId: string): Promise<void> {
+    try {
+      const memory = await this.storageManager.getMemory(memoryId);
+      if (memory) {
+        const updatedMemories = { ...this.memories };
+        updatedMemories[memoryId] = memory;
+        this.memories = updatedMemories;
+      } else {
+        // Memory was deleted, remove it from the store
+        const updatedMemories = { ...this.memories };
+        delete updatedMemories[memoryId];
+        this.memories = updatedMemories;
+      }
+    } catch (error) {
+      console.error(`Error refreshing memory ${memoryId}:`, error);
+    }
+  }
+
+  /**
+   * Set the active memory
+   */
+  setActiveMemory(memoryId: string | null): void {
+    this.activeMemoryId = memoryId;
+  }
+
+  /**
+   * Update the filter
+   */
+  updateFilter(newFilter: Partial<MemoryFilter>): void {
+    this.filter = { ...this.filter, ...newFilter };
+  }
+
+  /**
+   * Reset the filter to default values
+   */
+  resetFilter(): void {
+    this.filter = {
+      sortBy: "updatedAt",
+      sortDirection: "desc",
+    };
+  }
+
+  /**
+   * Create a new memory
+   */
+  async createMemory(
+    content: string,
+    category: MemoryCategory,
+    source: MemorySource,
+    tags: string[] = [],
+  ): Promise<string> {
+    try {
+      this.isLoading = true;
+
+      const memoryId = crypto.randomUUID();
+      const now = new Date().toISOString();
+
+      const newMemory: MemoryItem = {
+        id: memoryId,
+        content,
+        category,
+        source,
+        tags,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      await this.storageManager.saveMemory(newMemory);
+
+      // Update local state
+      const updatedMemories = { ...this.memories };
+      updatedMemories[memoryId] = newMemory;
+      this.memories = updatedMemories;
+
+      this.isLoading = false;
+      return memoryId;
+    } catch (error) {
+      console.error("Error creating memory:", error);
+      this.error = "Failed to create memory";
+      this.isLoading = false;
+      throw error;
+    }
+  }
+
+  /**
+   * Update an existing memory
+   */
+  async updateMemory(
+    memoryId: string,
+    updates: Partial<MemoryItem>,
+  ): Promise<void> {
+    try {
+      const memory = this.memories[memoryId];
+      if (!memory) {
+        throw new Error(`Memory ${memoryId} not found`);
+      }
+
+      const updatedMemory: MemoryItem = {
+        ...memory,
+        ...updates,
+        id: memoryId, // Ensure ID doesn't change
+        updatedAt: new Date().toISOString(),
+      };
+
+      await this.storageManager.saveMemory(updatedMemory);
+
+      // Update local state
+      const updatedMemories = { ...this.memories };
+      updatedMemories[memoryId] = updatedMemory;
+      this.memories = updatedMemories;
+    } catch (error) {
+      console.error(`Error updating memory ${memoryId}:`, error);
+      this.error = "Failed to update memory";
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a memory
+   */
+  async deleteMemory(memoryId: string): Promise<void> {
+    try {
+      this.isLoading = true;
+
+      await this.storageManager.deleteMemory(memoryId);
+
+      // Update local state
+      const updatedMemories = { ...this.memories };
+      delete updatedMemories[memoryId];
+      this.memories = updatedMemories;
+
+      // If the deleted memory was active, clear the active memory
+      if (this.activeMemoryId === memoryId) {
+        this.activeMemoryId = null;
+      }
+
+      this.isLoading = false;
+    } catch (error) {
+      console.error(`Error deleting memory ${memoryId}:`, error);
+      this.error = "Failed to delete memory";
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Delete multiple memories
+   */
+  async deleteMemories(memoryIds: string[]): Promise<void> {
+    try {
+      this.isLoading = true;
+
+      await this.storageManager.deleteMemories(memoryIds);
+
+      // Update local state
+      const updatedMemories = { ...this.memories };
+      memoryIds.forEach((id) => {
+        delete updatedMemories[id];
+      });
+      this.memories = updatedMemories;
+
+      // If the active memory was deleted, clear the active memory
+      if (this.activeMemoryId && memoryIds.includes(this.activeMemoryId)) {
+        this.activeMemoryId = null;
+      }
+
+      this.isLoading = false;
+    } catch (error) {
+      console.error("Error deleting memories:", error);
+      this.error = "Failed to delete memories";
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Extract memories from chat
+   * This analyzes a chat and extracts potential memories
+   */
+  async extractMemoriesFromChat(
+    chatId: string,
+    messages: any[],
+  ): Promise<string[]> {
+    try {
+      this.isLoading = true;
+
+      // Simple extraction logic - in a real app, this would use AI to extract insights
+      const extractedMemories: MemoryItem[] = [];
+      const memoryIds: string[] = [];
+
+      // Process each message to extract potential memories
+      messages.forEach((message) => {
+        if (message.sender === "ai") {
+          // Split content by paragraphs and extract potential insights
+          const paragraphs = message.content.split("\n\n");
+
+          paragraphs.forEach((paragraph) => {
+            // Skip short paragraphs
+            if (paragraph.length < 50) return;
+
+            // Skip paragraphs that are likely not insights
+            if (paragraph.startsWith("I ") || paragraph.startsWith("You "))
+              return;
+
+            // Create a memory
+            const memoryId = crypto.randomUUID();
+            const now = new Date().toISOString();
+
+            const newMemory: MemoryItem = {
+              id: memoryId,
+              content: paragraph.trim(),
+              category: "insight",
+              source: "chat",
+              tags: ["auto-extracted"],
+              createdAt: now,
+              updatedAt: now,
+              metadata: {
+                chatId,
+                messageId: message.id,
+                extractionMethod: "auto",
+              },
+            };
+
+            extractedMemories.push(newMemory);
+            memoryIds.push(memoryId);
+          });
+        }
+      });
+
+      // Save extracted memories
+      if (extractedMemories.length > 0) {
+        await this.storageManager.saveMemories(extractedMemories);
+
+        // Update local state
+        const updatedMemories = { ...this.memories };
+        extractedMemories.forEach((memory) => {
+          updatedMemories[memory.id] = memory;
+        });
+        this.memories = updatedMemories;
+      }
+
+      this.isLoading = false;
+      return memoryIds;
+    } catch (error) {
+      console.error("Error extracting memories from chat:", error);
+      this.error = "Failed to extract memories";
+      this.isLoading = false;
+      return [];
+    }
+  }
+
+  /**
+   * Export memories as JSON
+   */
+  async exportMemories(): Promise<string> {
+    try {
+      return await this.storageManager.exportMemoriesAsJSON();
+    } catch (error) {
+      console.error("Error exporting memories:", error);
+      this.error = "Failed to export memories";
+      throw error;
+    }
+  }
+
+  /**
+   * Import memories from JSON
+   */
+  async importMemories(json: string): Promise<number> {
+    try {
+      this.isLoading = true;
+
+      const count = await this.storageManager.importMemoriesFromJSON(json);
+
+      // Reload memories to update the store
+      await this.loadMemories();
+
+      this.isLoading = false;
+      return count;
+    } catch (error) {
+      console.error("Error importing memories:", error);
+      this.error = "Failed to import memories";
+      this.isLoading = false;
+      throw error;
+    }
+  }
+
+  /**
+   * Clear error message
+   */
+  clearError(): void {
+    this.error = null;
+  }
+}
+
+// Export a singleton instance of the MemoryStore
+export const memoryStore = new MemoryStore();

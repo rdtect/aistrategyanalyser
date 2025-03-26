@@ -1,33 +1,25 @@
 {
 	"/": [
-		"src/routes/+page.js"
+		"src/routes/+page.ts",
+		"src/routes/+page.server.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
 	],
-	"/analyses/new": [],
-	"/analyses/[id]/generate": [],
-	"/analyses/[id]/questions": [],
+	"/api": [
+		"src/routes/api/+layout.server.ts",
+		"src/routes/api/+server.ts"
+	],
 	"/api/ai": [
 		"src/routes/api/ai/+server.ts"
 	],
-	"/api/ai/response": [
-		"src/routes/api/ai/response/+server.ts"
+	"/api/chats": [
+		"src/routes/api/chats/+server.ts"
 	],
-	"/api/ai/search": [
-		"src/routes/api/ai/search/+server.ts"
+	"/api/chats/import": [
+		"src/routes/api/chats/import/+server.ts"
 	],
-	"/api/ai/stream": [
-		"src/routes/api/ai/stream/+server.ts"
-	],
-	"/api/analyses": [
-		"src/routes/api/analyses/+server.ts"
-	],
-	"/api/analyses/[id]/questions": [
-		"src/routes/api/analyses/[id]/questions/+server.ts"
-	],
-	"/api/analyses/[id]/responses": [
-		"src/routes/api/analyses/[id]/responses/+server.ts"
-	],
-	"/api/chats/[id]/export": [
-		"src/routes/api/chats/[id]/export/+server.ts"
+	"/api/chats/[id]": [
+		"src/routes/api/chats/[id]/+server.ts"
 	],
 	"/api/chat": [
 		"src/routes/api/chat/+server.ts"
@@ -35,28 +27,53 @@
 	"/api/health": [
 		"src/routes/api/health/+server.ts"
 	],
-	"/api/indexing": [
-		"src/routes/api/indexing/+server.ts"
-	],
 	"/api/messages": [
 		"src/routes/api/messages/+server.ts"
 	],
+	"/api/sample-chats/[id]": [
+		"src/routes/api/sample-chats/[id]/+server.ts"
+	],
+	"/api/v1/chats": [
+		"src/routes/api/v1/chats/+server.ts"
+	],
+	"/api/v1/chats/[id]": [
+		"src/routes/api/v1/chats/[id]/+server.ts"
+	],
+	"/api/v1/health": [
+		"src/routes/api/v1/health/+server.ts"
+	],
+	"/api/v1/openai": [
+		"src/routes/api/v1/openai/+server.ts"
+	],
 	"/chats": [
+		"src/routes/chats/+page.js",
 		"src/routes/chats/+page.server.ts",
 		"src/routes/chats/+layout.server.ts",
-		"src/routes/chats/+layout.server.ts"
+		"src/routes/+layout.ts",
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/+layout.ts"
 	],
 	"/chats/new": [
 		"src/routes/chats/new/+page.server.ts",
-		"src/routes/chats/+layout.server.ts"
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/+layout.ts"
 	],
 	"/chats/[id]": [
+		"src/routes/chats/[id]/+page.js",
 		"src/routes/chats/[id]/+page.server.ts",
-		"src/routes/chats/+layout.server.ts"
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/+layout.ts"
 	],
 	"/chats/[id]/export": [
+		"src/routes/chats/[id]/export/+page.ts",
 		"src/routes/chats/[id]/export/+page.server.ts",
-		"src/routes/chats/+layout.server.ts"
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/+layout.ts"
 	],
-	"/settings": []
+	"/offline": [
+		"src/routes/+layout.ts"
+	],
+	"/settings": [
+		"src/routes/+layout.ts"
+	]
 }

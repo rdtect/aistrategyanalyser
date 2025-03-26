@@ -28,9 +28,12 @@
 declare module '$env/static/private' {
 	export const DATABASE_URL: string;
 	export const OPENAI_API_KEY: string;
-	export const OPENAI_ORG_KEY: string;
+	export const VITE_OPENAI_API_KEY: string;
+	export const VITE_OPENAI_ORG_KEY: string;
 	export const VITE_SUPABASE_URL: string;
 	export const VITE_SUPABASE_ANON_KEY: string;
+	export const CHOKIDAR_USEPOLLING: string;
+	export const VITE_CJS_IGNORE_WARNING: string;
 	export const NVM_RC_VERSION: string;
 	export const TERM_PROGRAM: string;
 	export const NODE: string;
@@ -92,6 +95,7 @@ declare module '$env/static/private' {
 	export const NODE_EXTRA_CA_CERTS: string;
 	export const npm_node_execpath: string;
 	export const COLORTERM: string;
+	export const NINJA_ENV: string;
 	export const NODE_ENV: string;
 }
 
@@ -105,7 +109,8 @@ declare module '$env/static/private' {
  * ```
  */
 declare module '$env/static/public' {
-	
+	export const PUBLIC_SUPABASE_URL: string;
+	export const PUBLIC_SUPABASE_ANON_KEY: string;
 }
 
 /**
@@ -126,9 +131,12 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		DATABASE_URL: string;
 		OPENAI_API_KEY: string;
-		OPENAI_ORG_KEY: string;
+		VITE_OPENAI_API_KEY: string;
+		VITE_OPENAI_ORG_KEY: string;
 		VITE_SUPABASE_URL: string;
 		VITE_SUPABASE_ANON_KEY: string;
+		CHOKIDAR_USEPOLLING: string;
+		VITE_CJS_IGNORE_WARNING: string;
 		NVM_RC_VERSION: string;
 		TERM_PROGRAM: string;
 		NODE: string;
@@ -190,6 +198,7 @@ declare module '$env/dynamic/private' {
 		NODE_EXTRA_CA_CERTS: string;
 		npm_node_execpath: string;
 		COLORTERM: string;
+		NINJA_ENV: string;
 		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
@@ -210,6 +219,8 @@ declare module '$env/dynamic/private' {
  */
 declare module '$env/dynamic/public' {
 	export const env: {
+		PUBLIC_SUPABASE_URL: string;
+		PUBLIC_SUPABASE_ANON_KEY: string;
 		[key: `PUBLIC_${string}`]: string | undefined;
 	}
 }

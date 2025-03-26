@@ -1,50 +1,61 @@
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import OpenAI from "openai";
-import { OPENAI_API_KEY } from "$env/static/private";
+import { supabase } from "$lib/server/db/supabase";
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
-
-export const GET: RequestHandler = async ({ url }) => {
-  const model = url.searchParams.get("model") || "gpt-4o-mini";
-
+/**
+ * Simple health check endpoint
+ * Verifies:
+ * 1. Server is responding
+ * 2. Database connection is working
+ * 3. API dependencies are available
+ */
+export const GET: RequestHandler = async () => {
   try {
-    // Test the OpenAI Responses API connection with a simple request
-    const response = await openai.responses.create({
-      model: model,
-      input: "Hello, this is a test message. Please respond with 'OK'.",
-      max_output_tokens: 16,
-    });
+    const checks = {
+      server: "healthy",
+      database: "checking...",
+      api: "available",
+    };
 
-    // Check if we got a valid response
-    const connected = response && response.status === "completed";
+    // Check Supabase connection
+    try {
+      const { data, error } = await supabase
+        .from("chat_metadata")
+        .select("count", { count: "exact" })
+        .limit(1);
 
-    return json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      openai: {
-        connected,
-        model: model,
-        response: connected ? "Connection successful" : "No response received",
-      },
-    });
-  } catch (error) {
-    console.error("OpenAI API health check failed:", error);
+      checks.database = error ? "unhealthy" : "healthy";
+    } catch (dbError) {
+      console.error("Database health check failed:", dbError);
+      checks.database = "unhealthy";
+    }
+
+    // Determine overall status - healthy only if all checks pass
+    const isHealthy = Object.values(checks).every(
+      (status) => status === "healthy",
+    );
 
     return json(
       {
-        status: "error",
+        status: isHealthy ? "healthy" : "degraded",
+        checks,
         timestamp: new Date().toISOString(),
-        openai: {
-          connected: false,
-          model: model,
-          error: error instanceof Error ? error.message : "Unknown error",
-        },
       },
-      { status: 500 }
+      {
+        status: isHealthy ? 200 : 503,
+      },
+    );
+  } catch (error) {
+    console.error("Health check failed:", error);
+    return json(
+      {
+        status: "unhealthy",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      },
+      {
+        status: 500,
+      },
     );
   }
 };

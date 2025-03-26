@@ -1,110 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offline - AI Strategy Analyzer</title>
-    <link rel="icon" href="/favicon.svg" />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-          Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background-color: #111827;
-        color: #e5e7eb;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Offline page for AI Strategy Analyzer">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <title>Offline - AI Strategy Analyzer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#3b82f6',
+              hover: '#2563eb'
+            }
+          }
+        }
       }
-      header {
-        padding: 1rem;
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid #374151;
-      }
-      .logo {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: bold;
-        font-size: 1.25rem;
-      }
-      .logo img {
-        width: 32px;
-        height: 32px;
-      }
-      main {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-      }
-      .card {
-        background-color: #1f2937;
-        border-radius: 0.5rem;
-        padding: 2rem;
-        max-width: 24rem;
-        width: 100%;
-        text-align: center;
-        box-shadow:
-          0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
-      h1 {
-        margin-top: 0;
-        font-size: 1.5rem;
-      }
-      p {
-        line-height: 1.5;
-        margin-bottom: 1.5rem;
-      }
-      .btn {
-        display: inline-block;
-        background-color: #4f46e5;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.25rem;
-        text-decoration: none;
-        font-weight: 500;
-        transition: background-color 0.2s;
-      }
-      .btn:hover {
-        background-color: #4338ca;
-      }
-      footer {
-        text-align: center;
-        padding: 1rem;
-        border-top: 1px solid #374151;
-        font-size: 0.875rem;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <img src="/logo.svg" alt="Logo" />
-        <span>AI Strategy Analyzer</span>
-      </div>
-    </header>
+    }
+  </script>
+</head>
+<body class="font-sans flex flex-col items-center justify-center min-h-screen p-5 text-center bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
+  <main class="max-w-xl w-full p-8 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-colors duration-200">
+    <img src="/logo.svg" alt="AI Strategy Analyzer Logo" class="w-20 h-20 mx-auto mb-6">
+    <h1 class="text-2xl font-semibold mb-4">You're currently offline</h1>
+    <p class="mb-6 leading-relaxed">The AI Strategy Analyzer requires an internet connection to analyze strategies and provide insights. Please check your connection and try again.</p>
+    <button id="retryButton" class="bg-primary hover:bg-primary-hover text-white font-medium py-3 px-6 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800" aria-label="Try to reconnect">
+      Try Again
+    </button>
+    <p id="statusIndicator" class="mt-4 text-sm text-gray-600 dark:text-gray-400"></p>
+  </main>
 
-    <main>
-      <div class="card">
-        <h1>You're Offline</h1>
-        <p>
-          It looks like you've lost your internet connection. The AI Strategy
-          Analyzer requires an internet connection to analyze strategies and
-          provide insights.
-        </p>
-        <p>Please check your connection and try again.</p>
-        <a href="/" class="btn">Retry</a>
-      </div>
-    </main>
-
-    <footer>
-      <p>&copy; 2023 AI Strategy Analyzer</p>
-    </footer>
-  </body>
+  <script>
+    // Get DOM elements
+    const retryButton = document.getElementById('retryButton');
+    const statusIndicator = document.getElementById('statusIndicator');
+    
+    // Function to check online status
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        statusIndicator.textContent = 'Connection detected! Redirecting...';
+        // Give a small delay before reloading to show the message
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        statusIndicator.textContent = 'Still offline. Please check your connection.';
+      }
+    }
+    
+    // Event listeners
+    retryButton.addEventListener('click', updateOnlineStatus);
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', () => {
+      statusIndicator.textContent = 'No connection detected.';
+    });
+    
+    // Check status on page load
+    if (navigator.onLine) {
+      statusIndicator.textContent = 'Checking connection...';
+      // Try to fetch a resource to confirm actual connectivity
+      fetch('/', { method: 'HEAD' })
+        .then(() => {
+          statusIndicator.textContent = 'Connection restored! Redirecting...';
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        })
+        .catch(() => {
+          statusIndicator.textContent = 'Limited connectivity detected. Try again.';
+        });
+    } else {
+      statusIndicator.textContent = 'No connection detected.';
+    }
+  </script>
+</body>
 </html>

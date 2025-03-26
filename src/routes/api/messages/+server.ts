@@ -1,57 +1,129 @@
-import { json } from "@sveltejs/kit";
+import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { sampleMessages } from "$lib/data/sampleData";
+import { ChatService } from "$lib/services/ChatService";
+import { generateAIResponse } from "$lib/services/openai";
+import type { Message } from "../../chats/types";
+import { withErrorHandling } from "$lib/utils/errorHandler";
 
-export const POST: RequestHandler = async ({ request, url }) => {
-  try {
+/**
+ * Endpoint to handle adding messages to a chat and generating AI responses
+ * POST /api/messages?chatId=123
+ * Optimized for Svelte 5 and SvelteKit 2 best practices
+ */
+export const POST: RequestHandler = withErrorHandling(
+  async ({ request, url }) => {
+    // Get chat ID from query params
     const chatId = url.searchParams.get("chatId");
-
     if (!chatId) {
-      return json({ error: "Chat ID is required" }, { status: 400 });
+      throw error(400, "Missing chatId parameter");
     }
 
-    const { userMessage, aiResponse } = await request.json();
-
-    if (!userMessage || !aiResponse) {
-      return json(
-        { error: "Both user message and AI response are required" },
-        { status: 400 }
-      );
+    // Check if chat exists
+    const chat = await ChatService.getChatById(chatId);
+    if (!chat) {
+      throw error(404, `Chat with ID ${chatId} not found`);
     }
 
-    // For POC, we'll just simulate saving messages
-    console.log("Would save:", { userMessage, aiResponse, chatId });
+    // Get message from request body
+    const data = await request.json();
+    const { message, systemMessage } = data;
 
-    // Create mock message objects
-    const savedUserMessage = {
-      id: `user_${Date.now()}`,
-      content: userMessage,
-      sender: "user",
-      chatId,
-      timestamp: new Date(),
+    if (!message && !systemMessage) {
+      throw error(400, "Message content is required");
+    }
+
+    // Create a unique ID for the message using the Web Crypto API
+    const messageId = crypto.randomUUID();
+
+    // Determine if this is a user or system message
+    const sender = systemMessage ? "system" : "user";
+    const content = systemMessage || message;
+
+    // Create the message object
+    const userMessage: Message = {
+      id: messageId,
+      content,
+      sender,
+      timestamp: new Date().toISOString(),
+      status: "sent",
+      index: chat.messages.length,
     };
 
-    const savedAiMessage = {
-      id: `ai_${Date.now()}`,
-      content: aiResponse,
-      sender: "ai",
-      chatId,
-      timestamp: new Date(),
-    };
+    // Add the message to the chat
+    const updatedChat = await ChatService.addMessage(chatId, userMessage);
 
-    // In a real app, we would add these to the database
-    // For the POC, we'll just log them
-    if (!sampleMessages[chatId]) {
-      sampleMessages[chatId] = [];
+    if (!updatedChat) {
+      throw error(500, "Failed to add message to chat");
     }
-    sampleMessages[chatId].push(savedUserMessage, savedAiMessage);
 
-    return json({
-      success: true,
-      messages: [savedUserMessage, savedAiMessage],
-    });
-  } catch (error) {
-    console.error("Error saving messages:", error);
-    return json({ error: "Failed to save messages" }, { status: 500 });
+    // If it's a system message, don't generate an AI response
+    if (systemMessage) {
+      return json({ success: true, message: userMessage });
+    }
+
+    try {
+      // Generate AI response
+      const aiMessageContent = await generateAIResponse(message, {
+        systemMessage: "You are an AI Strategy Analyst assistant.",
+      });
+
+      // Create the AI message
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        content: aiMessageContent.response,
+        sender: "ai",
+        timestamp: new Date().toISOString(),
+        status: "sent",
+        index: chat.messages.length + 1,
+      };
+
+      // Add the AI response to the chat
+      await ChatService.addMessage(chatId, aiMessage);
+
+      // Return both messages
+      return json({
+        success: true,
+        userMessage,
+        aiMessage,
+        chatId,
+      });
+    } catch (error) {
+      console.error("Error generating AI response:", error);
+      // Still return success for the user message, just note AI failed
+      return json({
+        success: true,
+        userMessage,
+        aiError: "Failed to generate AI response",
+        errorDetails: error instanceof Error ? error.message : String(error),
+      });
+    }
+  },
+);
+
+/**
+ * Endpoint to get messages for a specific chat
+ * GET /api/messages?chatId=123
+ * Optimized for Svelte 5 and SvelteKit 2 best practices
+ */
+export const GET: RequestHandler = withErrorHandling(async ({ url }) => {
+  // Get chat ID from query params
+  const chatId = url.searchParams.get("chatId");
+  if (!chatId) {
+    throw error(400, "Missing chatId parameter");
   }
-};
+
+  // Get chat from storage
+  const chat = await ChatService.getChatById(chatId);
+  if (!chat) {
+    throw error(404, `Chat with ID ${chatId} not found`);
+  }
+
+  // Return chat messages with metadata
+  return json({
+    messages: chat.messages,
+    chatId,
+    chatName: chat.name,
+    context: chat.context,
+    lastUpdated: chat.updatedAt,
+  });
+});

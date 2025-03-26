@@ -1,43 +1,28 @@
 import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import { prisma } from "$lib/server/db";
+import { loadChatById } from "../../(components)/ChatUtils";
 import { marked } from "marked";
 
 export const load: PageServerLoad = async ({ params }) => {
   const { id } = params;
 
   // Get chat with messages
-  const chat = await prisma.chat.findUnique({
-    where: { id },
-    include: { messages: true },
-  });
+  const chat = loadChatById(id);
 
   if (!chat) {
     throw redirect(302, "/chats");
   }
 
-  // Get analysis if associated
-  const analysis = await prisma.analysis.findFirst({
-    where: { chatId: id },
-    include: {
-      questions: true,
-      responses: true,
-    },
-  });
-
   // Generate markdown
   let markdown = `# Strategic Analysis: ${chat.name}\n\n`;
   markdown += `*Generated: ${new Date().toLocaleDateString()}*\n\n`;
 
-  if (analysis) {
+  // Add company information if available
+  if (chat.context?.company) {
     markdown += `## Company Information\n\n`;
-    markdown += `- **Company:** ${analysis.company}\n`;
-    markdown += `- **Industry:** ${analysis.industry}\n`;
-    markdown += `- **Region:** ${analysis.region}\n`;
-
-    if (analysis.additionalContext) {
-      markdown += `\n### Additional Context\n\n${analysis.additionalContext}\n\n`;
-    }
+    markdown += `- **Company:** ${chat.context.company}\n`;
+    markdown += `- **Industry:** ${chat.context.industry || "N/A"}\n`;
+    markdown += `- **Region:** ${chat.context.region || "N/A"}\n\n`;
   }
 
   markdown += `## Analysis Results\n\n`;
@@ -66,7 +51,6 @@ export const load: PageServerLoad = async ({ params }) => {
 
   return {
     chat,
-    analysis,
     markdown,
     html,
   };

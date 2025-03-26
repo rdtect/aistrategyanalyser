@@ -1,45 +1,41 @@
-import OpenAI from 'openai';
-import { OPENAI_API_KEY } from '$env/static/private';
+/**
+ * Compatibility layer for old API
+ * Forwards requests to the versioned API endpoint
+ * @deprecated Use /api/v1/openai instead
+ */
 
-// Create OpenAI client with proper env variable
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY
-});
+import { redirect } from "@sveltejs/kit";
+import type { RequestHandler } from "./$types";
 
-export async function POST({ request }) {
-  // Get the messages from the request
-  const { messages } = await request.json();
+// Forward all requests to the versioned endpoint
+export const POST: RequestHandler = async ({ request, fetch }) => {
+  console.warn(
+    "Deprecated API endpoint /api/chat used. Please migrate to /api/v1/openai",
+  );
 
-  // Request the OpenAI API for the response
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4',
-    messages: messages.map((message: any) => ({
-      content: message.content,
-      role: message.role,
-    })),
-    temperature: 0.7,
-    stream: true,
+  // Forward the request to the new endpoint
+  return fetch("/api/v1/openai", {
+    method: "POST",
+    headers: request.headers,
+    body: request.body,
+  });
+};
+
+// Also forward GET requests
+export const GET: RequestHandler = async ({ request, url }) => {
+  console.warn(
+    "Deprecated API endpoint /api/chat used. Please migrate to /api/v1/openai",
+  );
+
+  // Build new URL with same params
+  const newUrl = new URL("/api/v1/openai", url.origin);
+  url.searchParams.forEach((value, key) => {
+    newUrl.searchParams.append(key, value);
   });
 
-  // Create a ReadableStream from the OpenAI response
-  const stream = new ReadableStream({
-    async start(controller) {
-      for await (const chunk of response) {
-        const content = chunk.choices[0]?.delta?.content || '';
-        if (content) {
-          controller.enqueue(new TextEncoder().encode(content));
-        }
-      }
-      controller.close();
-    },
+  // Forward to new endpoint
+  return fetch(newUrl, {
+    method: "GET",
+    headers: request.headers,
   });
-
-  // Return the stream with appropriate headers
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
-  });
-}
+};

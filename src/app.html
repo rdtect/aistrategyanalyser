@@ -2,10 +2,7 @@
 <html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-    <link rel="apple-touch-icon" href="%sveltekit.assets%/logo.svg" />
-    <link rel="manifest" href="%sveltekit.assets%/manifest.json" />
-    <meta name="theme-color" content="#4F46E5" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     %sveltekit.head%
     <script>
@@ -15,12 +12,12 @@
           window.matchMedia &&
           window.matchMedia("(prefers-color-scheme: dark)").matches;
         const storedTheme = localStorage.getItem("theme");
-        // Default to dark mode
-        const theme = storedTheme || "dark";
+        const theme = storedTheme || (prefersDark ? "dark" : "light");
         document.documentElement.setAttribute("data-theme", theme);
         document.documentElement.classList.toggle("dark", theme === "dark");
       })();
     </script>
+    <title>AIS-BOT</title>
   </head>
   <body data-theme="cerberus" data-sveltekit-preload-data="hover">
     <div style="display: contents">%sveltekit.body%</div>

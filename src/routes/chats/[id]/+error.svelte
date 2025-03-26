@@ -1,22 +1,30 @@
-<script>
+<script lang="ts">
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
 </script>
 
-<div class="card p-6 variant-filled-error max-w-md mx-auto mt-8">
-  <h2 class="text-xl font-bold mb-4">Error: {$page.status}</h2>
-  <p class="mb-4">{$page.error?.message || 'An error occurred while loading this chat'}</p>
-  
-  {#if $page.status === 404}
-    <p class="mb-4">This chat could not be found. It may have been deleted or never existed.</p>
-  {/if}
-  
-  <div class="flex gap-4">
-    <button class="btn variant-filled" on:click={() => goto('/')}>
-      Return to Home
-    </button>
-    <button class="btn variant-ghost" on:click={() => goto('/chats/new')}>
-      Create New Chat
-    </button>
+<div class="flex items-center justify-center h-full w-full">
+  <div class="max-w-md p-8 bg-surface-200-700-token rounded-lg shadow-lg text-center">
+    <h1 class="text-4xl font-bold text-primary-500 mb-4">{page.status || 500}</h1>
+    <h2 class="text-2xl font-semibold mb-4">
+      {#if page.status === 404}
+        Chat Not Found
+      {:else if page.status === 500}
+        Server Error
+      {:else}
+        Something Went Wrong
+      {/if}
+    </h2>
+    <p class="mb-6 text-lg">
+      {page.error?.message || "We couldn't find the chat you're looking for."}
+    </p>
+    <div class="flex gap-4 justify-center">
+      <button class="btn variant-filled-primary" on:click={() => goto('/chats')}>
+        View All Chats
+      </button>
+      <a href="/" class="btn variant-ghost-primary">
+        Home
+      </a>
+    </div>
   </div>
 </div>

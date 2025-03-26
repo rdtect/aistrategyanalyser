@@ -45,5 +45,5 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
-.env
-.env
+.svelte-kit
+.node_modules

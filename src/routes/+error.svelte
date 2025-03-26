@@ -1,18 +1,24 @@
-<script>
-  import { page } from '$app/stores';
+<script lang="ts">
+  import { page } from '$app/state';
 </script>
 
-<div class="container h-full flex justify-center items-center flex-col gap-4 p-4">
-  <div class="card p-4 variant-filled-error flex flex-col items-center gap-2 max-w-md w-full">
-    <h1 class="h1">{$page.status}</h1>
-    <p class="text-center">{$page.error?.message || 'An unexpected error occurred'}</p>
-    
-    {#if $page.status === 404}
-      <p>We couldn't find the page you were looking for.</p>
-    {:else if $page.status === 500}
-      <p>Something went wrong on our end. Please try again later.</p>
-    {/if}
-    
-    <a href="/" class="btn variant-filled mt-4">Go to Home</a>
+<div class="flex items-center justify-center h-full w-full">
+  <div class="max-w-md p-8 bg-surface-200-700-token rounded-lg shadow-lg text-center">
+    <h1 class="text-4xl font-bold text-primary-500 mb-4">{page.status || 500}</h1>
+    <h2 class="text-2xl font-semibold mb-4">
+      {#if page.status === 404}
+        Page Not Found
+      {:else if page.status === 500}
+        Server Error
+      {:else}
+        Something Went Wrong
+      {/if}
+    </h2>
+    <p class="mb-6 text-lg">
+      {page.error?.message || "We're sorry, but something unexpected happened."}
+    </p>
+    <a href="/" class="btn variant-filled-primary">
+      Return Home
+    </a>
   </div>
 </div>

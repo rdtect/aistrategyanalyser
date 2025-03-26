@@ -1,15 +1,12 @@
-import { sampleChats } from "$lib/data/sampleData";
 import type { PageServerLoad } from "./$types";
+import { loadAllChats } from "./chats/(components)/ChatUtils";
 
 /**
- * Server load function for the home page
- * This provides initial chat data
+ * Load data for the home page
  */
 export const load: PageServerLoad = async () => {
-  // In the future, this would load chats from a database
-  // For now, we're using sample data
+  // Use the shared utility to load all chats
   return {
-    chats: sampleChats,
-    timestamp: new Date().toISOString(),
+    chats: loadAllChats(),
   };
 };

@@ -1,18 +1,28 @@
 import { mdsvex } from "mdsvex";
-import adapter from "@sveltejs/adapter-auto";
-import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import adapter from "@sveltejs/adapter-cloudflare";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      // See below for an explanation of these options
+      routes: {
+        include: ["/*"],
+        exclude: ["<all>"],
+      },
+   
+    }),
+    serviceWorker: {
+      register: false,
+    },
   },
-  vitePlugin: { 
-	inspector: {
-		toggleKeyCombo :'meta-x'
-	} },
+  vitePlugin: {
+    inspector: {
+      toggleKeyCombo: "meta-x",
+    },
+  },
 
-  preprocess: [vitePreprocess(), mdsvex()],
+  preprocess: [mdsvex()],
   extensions: [".svelte", ".svx"],
 };
 

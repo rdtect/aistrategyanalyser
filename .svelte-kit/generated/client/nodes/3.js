@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/chats/[id]/+error.svelte";
+export { default as component } from "../../../../src/routes/chats/+layout.svelte";

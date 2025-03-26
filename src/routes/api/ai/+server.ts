@@ -1,145 +1,101 @@
-import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { sampleMessages } from "$lib/data/sampleData";
+import { OPENAI_API_KEY } from "$env/static/private";
+import OpenAI from "openai";
+import { json } from "@sveltejs/kit";
 
-// Sample responses for POC
-const sampleResponses = {
-  default:
-    "I'm an AI strategy consultant analyzing your business questions. What specific company or industry would you like me to analyze?",
-  apple:
-    "Apple's competitive advantages include strong brand identity, ecosystem lock-in, vertical integration of hardware and software, premium positioning, retail presence, and supply chain mastery. Their focus on user experience and design creates loyal customers willing to pay premium prices.",
-  tesla:
-    "Tesla has established a strong position in the EV market through innovation, vertical integration, and brand strength. They face increasing competition from traditional automakers and new entrants, but maintain technology advantages in battery efficiency, software, and their Supercharger network.",
-  unilever:
-    "To compete effectively with P&G, Unilever should leverage its sustainability leadership, focus on emerging markets where it's stronger, optimize its portfolio toward higher-margin personal care, accelerate digital transformation, and invest in innovation hubs for natural ingredients and market-specific products.",
+/**
+ * OpenAI Responses API endpoint
+ * Using the newest API approach for better quality responses
+ * @see https://platform.openai.com/docs/api-reference/responses
+ */
+
+// Initialize the OpenAI client once
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY || "mock-key-for-development",
+});
+
+// Available models
+const MODELS = {
+  GPT4_TURBO: "gpt-4o", // Latest model - best performance
+  GPT4: "gpt-4", // Stable but slower
+  GPT3_5: "gpt-3.5-turbo-0125", // Faster but less capable
 };
 
-// Generate a response based on the question and prompt
-function generateResponseFromPrompt(
-  message: string,
-  prompt: any,
-  context: any
-): string {
-  // For POC we'll use keyword matching plus context
-  const lowerMessage = message.toLowerCase();
+// Strategy prompt for business analysis
+const STRATEGY_PROMPT = `You are an AI Strategy Analyzer, an expert in business strategy, market analysis, and competitive intelligence.
 
-  // Start with a baseline response
-  let baseResponse = sampleResponses.default;
+Your role is to provide data-driven, insightful analysis for business strategists using the 4Cs framework:
+1. Category - Comprehensive market analysis, trends, growth segments, and industry dynamics
+2. Consumer - Deep customer insights, behavioral shifts, needs analysis, and segmentation
+3. Competitive - Thorough competitor analysis, strategic positioning, and relative strengths/weaknesses
+4. Cultural - Analysis of broader cultural and social trends impacting business strategy
 
-  // Look for company-specific keywords
-  if (
-    lowerMessage.includes("apple") ||
-    context?.company?.toLowerCase().includes("apple")
-  ) {
-    baseResponse = sampleResponses.apple;
-  } else if (
-    lowerMessage.includes("tesla") ||
-    context?.company?.toLowerCase().includes("tesla")
-  ) {
-    baseResponse = sampleResponses.tesla;
-  } else if (
-    lowerMessage.includes("unilever") ||
-    context?.company?.toLowerCase().includes("unilever")
-  ) {
-    baseResponse = sampleResponses.unilever;
-  }
+Format your responses with clear hierarchical organization using markdown, include data where available, and conclude with follow-up questions.`;
 
-  // Format response according to the output format
-  let response = "";
-  if (prompt && typeof prompt === "object" && prompt["Output Format"]) {
-    // Apply some formatting based on the output format
-    const format = prompt["Output Format"];
-    if (format.includes("table") || format.includes("structured report")) {
-      response = `# Analysis: ${context?.company || "Company"} - ${message}\n\n`;
-      response += `## Key Findings\n\n`;
-      response += `| Factor | Assessment | Impact |\n`;
-      response += `| ------ | ---------- | ------ |\n`;
-      response += `| Market Position | Strong | High |\n`;
-      response += `| Competition | Moderate | Medium |\n`;
-      response += `| Innovation | High | High |\n`;
-      response += `| Customer Loyalty | Strong | High |\n\n`;
-      response += baseResponse;
-    } else {
-      response = `# ${message}\n\n${baseResponse}`;
-    }
-  } else {
-    response = baseResponse;
-  }
-
-  // Add a note about web search if enabled
-  if (context?.webSearch) {
-    response +=
-      "\n\n*Note: This analysis was enhanced with real-time web search data.*";
-  }
-
-  return response;
-}
-
+/**
+ * Handle requests to the OpenAI Responses API
+ */
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const requestData = await request.json();
-    const {
-      message,
-      chatId,
-      prompt,
-      context = {},
-      webSearch = false,
+    const { 
+      messages, 
+      model, 
+      temperature, 
+      systemMessage,
+      reasoning = { effort: "high" } 
     } = requestData;
 
-    if (!message) {
-      return json({ error: "No message provided" }, { status: 400 });
+    // Check for valid request format
+    if (!messages || !Array.isArray(messages)) {
+      return json({ error: "Invalid messages format" }, { status: 400 });
     }
 
-    // Generate a response based on the prompt and context
-    let response;
-    if (prompt) {
-      // Enhanced response with prompt template and context
-      response = generateResponseFromPrompt(message, prompt, {
-        ...context,
-        webSearch,
+    // Extract parameters with defaults
+    const selectedModel = model || MODELS.GPT4_TURBO;
+    const selectedTemperature = temperature || 0.7;
+    const selectedSystemMessage = systemMessage || STRATEGY_PROMPT;
+    
+    // Build the messages array for the API
+    let apiMessages = [...messages]; // Make a copy
+    
+    // Add system message if not present
+    if (selectedSystemMessage && !apiMessages.some(msg => msg.role === 'system')) {
+      apiMessages.unshift({ role: 'system', content: selectedSystemMessage });
+    }
+    
+    try {
+      // Using the Responses API for improved quality
+      const response = await openai.responses.create({
+        model: selectedModel,
+        input: apiMessages,
+        reasoning: reasoning,
+        max_tokens: 2000,
       });
-    } else {
-      // Simple keyword matching for basic queries
-      response = sampleResponses.default;
-      const lowerMessage = message.toLowerCase();
-      if (lowerMessage.includes("apple")) {
-        response = sampleResponses.apple;
-      } else if (lowerMessage.includes("tesla")) {
-        response = sampleResponses.tesla;
-      } else if (
-        lowerMessage.includes("unilever") ||
-        lowerMessage.includes("p&g")
-      ) {
-        response = sampleResponses.unilever;
-      }
+
+      return json({
+        content: response.output_text,
+        metadata: {
+          model: selectedModel,
+          usage: {
+            input_tokens: response.usage?.input_tokens || 0,
+            output_tokens: response.usage?.output_tokens || 0,
+            total_tokens: response.usage?.total_tokens || 0
+          },
+          reasoning_effort: reasoning.effort,
+          finished_reason: response.finish_reason,
+          response_id: response.id
+        }
+      });
+    } catch (err) {
+      console.error("OpenAI API Error:", err);
+      return json({ 
+        error: "Failed to generate response", 
+        details: err.message 
+      }, { status: 500 });
     }
-
-    // Simulate a delay for more realistic response time
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // If chatId is provided, save the response to the chat
-    if (chatId) {
-      // Get existing messages for this chat
-      const messageList = (sampleMessages as any)[chatId] || [];
-
-      // Add the AI response to the messages
-      if (Array.isArray(messageList)) {
-        messageList.push({
-          id: `${chatId}-${Date.now()}`,
-          content: response,
-          sender: "ai",
-          timestamp: new Date(),
-          status: "sent",
-        });
-      }
-    }
-
-    return json({ response });
   } catch (error) {
-    console.error("API error:", error);
-    return json(
-      { error: "There was an error generating a response" },
-      { status: 500 }
-    );
+    console.error("Server Error:", error);
+    return json({ error: "Internal server error" }, { status: 500 });
   }
 };
