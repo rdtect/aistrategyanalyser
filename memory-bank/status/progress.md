@@ -218,3 +218,25 @@
 - Moved core components to dedicated core directories
 - Created barrel files for cleaner imports
 - Updated imports in layout file to use new structure
+
+## April 1st, 2024: Chat & Settings Refactoring Completion
+
+- **Completed Chat Refactoring Plan:**
+  - Unified OpenAI service (`openai.ts`) return types for consistency.
+  - Enhanced type safety in `ChatService.ts` by adding data validation/hydration when loading from storage.
+  - Successfully refactored `AnalysisCreation.svelte` into modular step components (`FrameworkStep`, `ContextStep`, `QuestionsStep`, `ReviewStep`).
+  - Improved intent detection in `ChatLogic.svelte.ts` using keyword mapping instead of simple string includes.
+  - Standardized error state handling in `ChatLogic.svelte.ts`.
+  - Parallelized initial analysis questions in `ChatLogic.svelte.ts` using `Promise.allSettled`.
+  - Removed unused `ErrorBoundary.svelte` component, relying on root `+error.svelte`.
+- **Settings Page Refactoring:**
+  - Created global settings store (`src/lib/stores/config.svelte.ts`) using Svelte 5 `$state`.
+  - Refactored `settings/+page.svelte` to use the global store, removing local state and manual persistence logic.
+  - Implemented Skeleton UI toast notifications using context API (`ToastProvider`, `getContext`).
+- **API Endpoint Configuration:**
+  - Modified `/api/v1/openai/+server.ts` to always use the Responses API (`handleResponsesAPI`) path.
+  - Forced web search tool usage for initial analysis questions in `ChatLogic.svelte.ts`.
+- **General Cleanup:**
+  - Removed unused imports, CSS, state variables, and functions across multiple files (`+layout.svelte`, `AnalysisCreation.svelte`, step components, `ChatLogic.svelte.ts`).
+  - Fixed various linter errors related to types, CSS, and Svelte 5 syntax (dynamic components, attributes).
+  - Simplified `localStorage` usage in `ChatService.ts`.
