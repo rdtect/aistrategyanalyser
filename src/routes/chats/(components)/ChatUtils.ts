@@ -1,5 +1,5 @@
 import { sampleChats } from '$lib';
-import type { Chat } from '../types';
+import type { Chat } from '$lib/types';
 import { ChatService } from '$lib/services/ChatService';
 
 /**

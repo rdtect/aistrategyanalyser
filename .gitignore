@@ -46,4 +46,9 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .svelte-kit
+
+
 .node_modules
+.cursor
+
+.idea

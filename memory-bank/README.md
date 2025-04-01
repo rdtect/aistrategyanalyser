@@ -6,11 +6,16 @@ The Memory Bank is a comprehensive documentation repository for the AI Strategy 
 
 ## Directory Structure
 
-- **core/**: Core architecture and implementation documentation
-  - `project-structure.md`: Overview of the project's directory structure
-  - `svelte5-implementation.md`: Details on Svelte 5 runes implementation
-  - `indexeddb-implementation.md`: Client-side data persistence implementation
-  - `offline-capabilities.md`: Offline functionality implementation
+- **diagrams/**: Visual representations of the system architecture
+  - Contains system diagrams, flowcharts, and other visual aids
+- **journal/**: Chronological record of major decisions and changes.
+- **references/**: External resources and reference materials
+  - Links to documentation, articles, and other resources
+- **status/**: Project status reports and roadmaps (Note: consider merging into progress.md or activeContext.md for simplicity)
+  - `current-status.md`: Current state of the project
+  - Historical status reports and progress tracking
+
+Key documentation files at the root level provide context on various aspects:
 
 - **diagrams/**: Visual representations of the system architecture
   - Contains system diagrams, flowcharts, and other visual aids

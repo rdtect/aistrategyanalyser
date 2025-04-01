@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Navigation } from '@skeletonlabs/skeleton-svelte';
-  import type { Chat, Message } from '../types';
+  import { Navigation, Accordion } from '@skeletonlabs/skeleton-svelte';
+  import type { Chat, Message } from '$lib/types';
   import { goto } from '$app/navigation';
   
   // Icons
@@ -11,18 +11,17 @@
   import IconSettings from '@lucide/svelte/icons/settings';
   import IconHistory from '@lucide/svelte/icons/history';
   import IconSearch from '@lucide/svelte/icons/search';
+  import IconLogOut from '@lucide/svelte/icons/log-out';
   
   // Props
   let { 
     chats = [], 
     activeChatId = '', 
-    onCreateChat, 
     onDeleteChat, 
     onSelectChat 
   } = $props<{
     chats: Chat[];
     activeChatId?: string;
-    onCreateChat: () => Promise<string>;
     onDeleteChat: (id: string) => Promise<void>;
     onSelectChat: (id: string) => Promise<void>;
   }>();
@@ -56,6 +55,7 @@
         ? chats.filter((chat: Chat) => 
             chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (chat.messages.length > 0 && chat.messages.some((m: Message) => 
+              typeof m.content === 'string' && 
               m.content.toLowerCase().includes(searchQuery.toLowerCase())
             ))
           )
@@ -115,15 +115,24 @@
   }
 
   // Get chat snippet from messages
-  function getChatSnippet(chat: Chat): string {
-    if (!chat.messages || chat.messages.length === 0) {
+  function getChatSnippet(chat: Chat | undefined): string {
+    if (!chat || !chat.messages || chat.messages.length === 0) {
       return 'No messages yet';
     }
-    
+
     const lastMessage = chat.messages[chat.messages.length - 1];
-    return lastMessage.content.length > 30
-      ? lastMessage.content.substring(0, 30) + '...'
-      : lastMessage.content;
+
+    // Safely handle potentially undefined/null content
+    const content = lastMessage?.content;
+    if (typeof content === 'string' && content.trim() !== '') {
+      const snippet = content.substring(0, 50);
+      return snippet.length < content.length ? snippet + '...' : snippet;
+    } else if (lastMessage?.role === 'assistant') {
+      // Handle cases like tool usage where content might be missing
+      return '[AI processing...]'; 
+    } else {
+      return '[Empty message]';
+    }
   }
   
   // Simulate unread messages (for demo purposes)
@@ -135,20 +144,6 @@
       return '13579'.includes(lastChar);
     }
     return false;
-  }
-  
-  // Handle creating a new chat
-  async function handleCreateChat() {
-    if (isCreating) return;
-    
-    isCreating = true;
-    try {
-      await onCreateChat();
-    } catch (error) {
-      console.error('Error creating chat:', error);
-    } finally {
-      isCreating = false;
-    }
   }
   
   // Handle selecting a chat
@@ -185,6 +180,11 @@
   function goToSettings() {
     window.location.href = '/settings';
   }
+
+  // Make sure the derived value using this function handles potential undefined chat
+  const chatSnippets = $derived(
+    chats.map((chat: Chat | undefined) => chat ? getChatSnippet(chat) : 'Loading...')
+  );
 </script>
 
 <div class="card h-full w-full border-surface-100-900 border-[1px] flex flex-col">
@@ -224,6 +224,7 @@
     </div>
   </div>
   
+ 
   <!-- Chat list -->
   <div class="flex-1 overflow-hidden">
     {#if chats.length === 0}

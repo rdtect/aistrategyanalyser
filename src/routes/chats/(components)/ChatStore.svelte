@@ -8,8 +8,8 @@
   2. We'll use reactivity to keep the values in sync
 -->
 <script module lang="ts">
-  import * as storeModule from '$lib/services/ChatsStore.svelte.ts';
-  import type { Chat, ChatContext } from '../types';
+  import * as storeModule from '$lib/stores/ChatsStore.svelte';
+  import type { Chat, Message, ChatContext } from '$lib/types';
   
   // Re-export the getter functions
   export const getChatList = storeModule.getChatList;
@@ -22,8 +22,12 @@
     return storeModule.initialize(sampleChats);
   }
   
-  export async function createChat(name: string, context: ChatContext = {}) {
-    return storeModule.createChat(name, context);
+  export async function createChat(
+    name: string,
+    context?: ChatContext,
+    selectedQuestionIds: string[] = []
+  ) {
+    return storeModule.createChat(name, context, selectedQuestionIds);
   }
   
   export async function setActiveChat(id: string) {
@@ -36,7 +40,7 @@
   
   export async function addMessage(
     content: string, 
-    sender: "user" | "ai" | "system" = "user", 
+    sender: "user" | "assistant" | "system" = "user",
     chatId: string | null = null
   ) {
     return storeModule.addMessage(content, sender, chatId);
@@ -49,10 +53,11 @@
   // Create a singleton instance for backward compatibility
   export const chatStore = {
     initialize,
-    createChat,
+    createChat: (name: string, context?: ChatContext, selectedQuestionIds: string[] = []) =>
+      createChat(name, context, selectedQuestionIds),
     setActiveChat,
     deleteChat,
-    addMessage,
+    addMessage: (content: string, sender: "user" | "assistant" | "system" = "user", chatId: string | null = null) => addMessage(content, sender, chatId),
     restoreChat,
     get chatList() { return getChatList(); },
     get activeChat() { return getActiveChat(); },

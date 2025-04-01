@@ -2,6 +2,7 @@ import type { Actions, PageServerLoad } from "./$types";
 import { fail, redirect, error } from "@sveltejs/kit";
 import { loadChatById, loadAllChats } from "../(components)/ChatUtils";
 import { ChatService } from "$lib/services/ChatService";
+import type { Chat } from "$lib/types";
 
 /**
  * Load data for a specific chat with error handling
@@ -21,13 +22,38 @@ export const load: PageServerLoad = async ({ params, parent, fetch }) => {
       const sampleChat = sampleChats.find((c) => c.id === params.id);
       if (sampleChat) {
         // Cache the sample chat for future requests
-        ChatService.cacheChat(sampleChat);
+        ChatService.cacheChat(sampleChat as Chat);
         chat = sampleChat;
       }
     }
 
     if (!chat) {
-      throw error(404, "Chat not found");
+      console.log(`Chat ${params.id} not found, creating sample...`);
+      // Create a basic sample chat matching the Chat type structure
+      const sampleChat = {
+        id: params.id,
+        name: "Sample Chat",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        context: {
+          id: `context-${params.id}`, // Add context ID
+          name: `Context for ${params.id}`, // Add context name
+          // Add other default context fields if necessary
+        },
+        messages: [
+          {
+            role: "system",
+            content: "Welcome to the sample chat!",
+            timestamp: new Date().toISOString(),
+            status: "sent",
+            index: 0,
+          },
+        ], // Add empty messages array
+      };
+
+      // Cache the sample chat for future requests
+      ChatService.cacheChat(sampleChat as Chat);
+      chat = sampleChat;
     }
 
     console.log(`Chat ${params.id} loaded successfully`);
@@ -51,41 +77,4 @@ export const load: PageServerLoad = async ({ params, parent, fetch }) => {
   };
 };
 
-export const actions: Actions = {
-  sendMessage: async ({ request, params, fetch }) => {
-    const formData = await request.formData();
-    const message = formData.get("message")?.toString();
-    const chatId = params.id;
-
-    if (!message) {
-      return fail(400, { error: "Message is required" });
-    }
-
-    try {
-      // In a real app, we would save to the database and then call the API
-      // For now, we'll call the API directly
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          
-        },
-        body: JSON.stringify({
-          message,
-          chatId,
-          stream: false,
-          tools: [{ type: "web_search_preview" }],
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API response: ${response.status}`);
-      }
-
-      return { success: true };
-    } catch (e) {
-      console.error("Error sending message:", e);
-      return fail(500, { error: "Failed to process message" });
-    }
-  },
-};
+export const actions: Actions = {};

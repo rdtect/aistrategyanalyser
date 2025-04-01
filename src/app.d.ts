@@ -1,83 +1,67 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
+/// <reference types="@sveltejs/kit" />
+
+// Define the FileSystemHandle and related types if not already present
+// (These might vary slightly based on exact browser support)
+interface FileSystemHandle {
+  kind: "file" | "directory";
+  name: string;
+  isSameEntry?(other: FileSystemHandle): Promise<boolean>;
+  queryPermission?(
+    descriptor?: FileSystemHandlePermissionDescriptor,
+  ): Promise<PermissionState>;
+  requestPermission?(
+    descriptor?: FileSystemHandlePermissionDescriptor,
+  ): Promise<PermissionState>;
+}
+
+interface FileSystemFileHandle extends FileSystemHandle {
+  kind: "file";
+  getFile(): Promise<File>;
+  createWritable(
+    options?: FileSystemWritableFileStreamOptions,
+  ): Promise<FileSystemWritableFileStream>;
+}
+
+interface FileSystemWritableFileStream extends WritableStream {
+  write(data: any): Promise<void>;
+  seek(position: number): Promise<void>;
+  truncate(size: number): Promise<void>;
+}
+
+interface FileSystemHandlePermissionDescriptor {
+  mode?: "read" | "readwrite";
+}
+
+interface FileSystemWritableFileStreamOptions {
+  keepExistingData?: boolean;
+}
+
+interface SaveFilePickerOptions {
+  suggestedName?: string;
+  types?: {
+    description?: string;
+    accept?: { [mimeType: string]: string[] };
+  }[];
+  excludeAcceptAllOption?: boolean;
+}
+
 declare global {
   namespace App {
-    // interface Error {}
+    interface Error {} // Ensure this line is uncommented
     // interface Locals {}
     // interface PageData {}
     // interface PageState {}
     // interface Platform {}
   }
-}
 
-// Explicitly declare the modules instead of using imports
-declare module "virtual:pwa-info" {
-  const pwaInfo:
-    | {
-        webManifest: {
-          linkTag: string;
-          href: string;
-          useCredentials: boolean;
-        };
-      }
-    | undefined;
-
-  export { pwaInfo };
-}
-
-declare module "virtual:pwa-assets/head" {
-  interface Link {
-    rel: string;
-    href: string;
-    sizes?: string;
-    type?: string;
-    media?: string;
-    [key: string]: any;
+  interface Window {
+    // Add the missing property definition
+    showSaveFilePicker?(
+      options?: SaveFilePickerOptions,
+    ): Promise<FileSystemFileHandle>;
   }
-
-  const pwaAssetsHead: {
-    themeColor?: {
-      content: string;
-      media?: string;
-    };
-    links: Link[];
-  };
-
-  export { pwaAssetsHead };
-}
-
-declare module "virtual:pwa-register" {
-  export interface RegisterSWOptions {
-    immediate?: boolean;
-    onNeedRefresh?: () => void;
-    onOfflineReady?: () => void;
-    onRegistered?: (
-      registration: ServiceWorkerRegistration | undefined,
-    ) => void;
-    onRegisterError?: (error: any) => void;
-  }
-
-  export function register(options?: RegisterSWOptions): () => Promise<void>;
-}
-
-declare module "virtual:pwa-register/svelte" {
-  import type { Readable } from "svelte/store";
-
-  export interface RegisterSWOptions {
-    immediate?: boolean;
-    onNeedRefresh?: () => void;
-    onOfflineReady?: () => void;
-    onRegistered?: (
-      registration: ServiceWorkerRegistration | undefined,
-    ) => void;
-    onRegisterError?: (error: any) => void;
-  }
-
-  export function useRegisterSW(options?: RegisterSWOptions): {
-    needRefresh: Readable<boolean>;
-    offlineReady: Readable<boolean>;
-    updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
-  };
 }
 
 export {};

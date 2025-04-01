@@ -6,6 +6,7 @@
   import ChatSidebar from "./(components)/ChatSidebar.svelte";
   import AppBar from "./(components)/AppBar.svelte";
   import ChatStoreSync from "./(components)/ChatStore.svelte";
+  import type { Chat } from '$lib/types'; // Import Chat type
 
   // Props
   let { data, children } = $props();
@@ -18,7 +19,19 @@
   // Initialize chats from server-provided sample data
   $effect(() => {
     if (browser && data.sampleChats) {
-      chatStore.initialize(data.sampleChats);
+      // Ensure sampleChats conform to Chat[] type before initializing
+      const completeSampleChats: Chat[] = data.sampleChats.map((chat: any) => ({
+        ...chat,
+        messages: chat.messages || [], // Add default messages array
+        updatedAt: chat.updatedAt || chat.createdAt || new Date().toISOString(), // Add default updatedAt
+        // Ensure context has id and name if needed, though store might handle defaults now
+        context: {
+          id: chat.context?.id || `ctx-${chat.id}`,
+          name: chat.context?.name || `Ctx ${chat.name}`,
+          ...chat.context,
+        },
+      }));
+      chatStore.initialize(completeSampleChats);
     }
   });
 
@@ -108,7 +121,6 @@
           <ChatSidebar 
             chats={chatStore.chatList} 
             activeChatId={page.params.id}
-            onCreateChat={handleCreateChat}
             onDeleteChat={handleDeleteChat}
             onSelectChat={handleSelectChat}
           />

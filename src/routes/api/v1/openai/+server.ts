@@ -1,8 +1,12 @@
-import { error, json } from "@sveltejs/kit";
+import { error as svelteKitError, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { OPENAI_API_KEY } from "$env/static/private";
 import { withErrorHandling } from "$lib/utils/errorHandler";
 import OpenAI from "openai";
+import type {
+  ChatCompletionMessageParam,
+  ChatCompletionMessageToolCall,
+} from "openai/resources/chat/completions";
 
 /**
  * Versioned OpenAI API endpoint (v1)
@@ -26,130 +30,64 @@ const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
 
+// Define types for the function parameters
+interface HandleResponsesAPIParams {
+  messages: ChatCompletionMessageParam[];
+  model: string;
+  tools?: any;
+  temperature?: number;
+  max_tokens?: number;
+  reasoning?: any;
+}
+
 /**
  * Process a POST request to the OpenAI API
  */
 export const POST: RequestHandler = withErrorHandling(async ({ request }) => {
+  const requestBody = await request.json();
+  console.log(
+    "[/api/v1/openai] Received request body:",
+    JSON.stringify(requestBody),
+  );
+
   const {
     messages,
     model = "gpt-4o",
-    stream = false,
     temperature = 0.7,
     max_tokens,
     tools = [],
     responseFormat,
-    useResponsesAPI = false,
     reasoning,
-  } = await request.json();
+  } = requestBody;
 
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    throw error(400, "Messages are required and must be an array");
+    throw svelteKitError(400, "Messages are required and must be an array");
   }
 
   try {
-    // If we're using the Responses API, handle it differently
-    if (useResponsesAPI) {
-      return await handleResponsesAPI({
-        messages,
-        model,
-        tools,
-        temperature,
-        max_tokens,
-        reasoning,
-      });
-    }
-
-    // Call OpenAI API using the chat completions endpoint
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature,
-        max_tokens: max_tokens || undefined,
-        stream,
-        tools: tools.length > 0 ? tools : undefined,
-        response_format: responseFormat || undefined,
-      }),
+    // Always use the Responses API path
+    console.log("[/api/v1/openai] Forwarding to handleResponsesAPI...");
+    const responseData = await handleResponsesAPI({
+      messages,
+      model,
+      tools,
+      temperature,
+      max_tokens,
+      reasoning,
     });
+    return json(responseData);
+  } catch (err) {
+    console.error("Error calling OpenAI API:", err);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error("OpenAI API error:", errorData || response.statusText);
-      throw error(
-        response.status,
-        `OpenAI API error: ${errorData?.error?.message || response.statusText}`,
-      );
+    if (err instanceof Response) {
+      throw err;
     }
 
-    // If streaming, pass through the stream
-    if (stream) {
-      const responseStream = new ReadableStream({
-        async start(controller) {
-          const reader = response.body?.getReader();
-          if (!reader) {
-            controller.close();
-            return;
-          }
-
-          const decoder = new TextDecoder("utf-8");
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) {
-                // Make sure to send the [DONE] message at the end
-                controller.enqueue(
-                  new TextEncoder().encode("data: [DONE]\n\n"),
-                );
-                controller.close();
-                break;
-              }
-
-              // Pass through the chunks directly - don't modify the SSE format
-              const chunk = decoder.decode(value, { stream: true });
-              controller.enqueue(new TextEncoder().encode(chunk));
-            }
-          } catch (error) {
-            console.error("Error processing stream:", error);
-            controller.error(error);
-          }
-        },
-      });
-
-      return new Response(responseStream, {
-        headers: {
-          "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
-          Connection: "keep-alive",
-        },
-      });
+    if (err instanceof Error) {
+      throw svelteKitError(500, `Failed to process request: ${err.message}`);
     }
 
-    // Regular response
-    const data = await response.json();
-    return json({
-      text: data.choices[0]?.message?.content || "",
-      model: data.model,
-      usage: data.usage,
-      id: data.id,
-    });
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-
-    if (error instanceof Error && !(error instanceof Response)) {
-      throw error(500, `Failed to process request: ${error.message}`);
-    }
-
-    // If it's already a Response error, just throw it
-    if (error instanceof Response) {
-      throw error;
-    }
-
-    throw error(500, "An unknown error occurred");
+    throw svelteKitError(500, "An unknown error occurred");
   }
 });
 
@@ -163,64 +101,64 @@ async function handleResponsesAPI({
   temperature,
   max_tokens,
   reasoning,
-}) {
+}: HandleResponsesAPIParams): Promise<{
+  content: string | null;
+  tool_calls: ChatCompletionMessageToolCall[] | undefined;
+}> {
   try {
-    // Extract the user message (typically the last one)
-    const userMessages = messages.filter((msg) => msg.role === "user");
-    const lastUserMessage =
-      userMessages[userMessages.length - 1]?.content || "";
+    // Extract the latest user message content for the Responses API
+    const lastUserMessage = messages.filter((m) => m.role === "user").pop();
+    const responsesInput = lastUserMessage?.content || ""; // Fallback to empty string
 
-    // Get system messages to include as context
-    const systemMessages = messages.filter((msg) => msg.role === "system");
-    const systemInstructions = systemMessages
-      .map((msg) => msg.content)
-      .join("\n\n");
+    // Prepare parameters for the Responses API
+    const responseAPIParams = {
+      model: model || "gpt-4o",
+      input: responsesInput, // Revert to passing the string
+      tools: tools, // Pass the tools array (e.g., for web_search_preview)
+      // Add other specific parameters for Responses API if needed
+    };
 
-    // Previous assistant responses for context (excluding the last user message)
-    const assistantMessages = messages.filter(
-      (msg) => msg.role === "assistant",
+    console.log(
+      "Calling OpenAI Responses API with params:",
+      JSON.stringify(responseAPIParams, null, 2),
     );
-    const previousExchange = messages
-      .slice(0, -1) // Exclude the most recent user message
-      .filter((msg) => msg.role === "user" || msg.role === "assistant")
-      .map(
-        (msg) =>
-          `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`,
-      )
-      .join("\n\n");
+    // *** Use openai.responses.create instead ***
+    const response = await openai.responses.create(responseAPIParams as any);
 
-    const contextString = previousExchange
-      ? `Previous conversation:\n${previousExchange}\n\nUser's new message: ${lastUserMessage}`
-      : lastUserMessage;
+    console.log(
+      "[/api/v1/openai handleResponsesAPI] Received from OpenAI SDK (responses.create):",
+      JSON.stringify(response),
+    );
 
-    // Create the response
-    const response = await openai.responses.create({
-      model,
-      input: contextString,
-      instructions: systemInstructions || undefined,
-      tools: tools.length > 0 ? tools : undefined,
-      temperature,
-      max_tokens: max_tokens || undefined,
-      reasoning: reasoning || undefined,
-    });
+    // *** Adapt response extraction based on actual structure ***
+    // Use the top-level output_text field which seems to contain the final answer
+    const assistantResponseContent = (response as any)?.output_text ?? null;
+    // Extract tool calls if needed, though they might be less relevant if output_text is present.
+    // For now, let's assume tool_calls aren't needed if output_text is present.
+    const toolCalls = undefined; // Adjust if tool execution results need separate handling
 
-    // Return consistent format
-    return json({
-      text: response.output_text,
-      model: model,
-      usage: {
-        // Estimated usage since Responses API doesn't return it
-        prompt_tokens: 0,
-        completion_tokens: 0,
-        total_tokens: 0,
-      },
-      id: response.id,
-    });
-  } catch (error) {
-    console.error("Error calling OpenAI Responses API:", error);
-    throw error(
+    if (assistantResponseContent === null) {
+      // Simplified check
+      console.warn(
+        "[/api/v1/openai handleResponsesAPI] Responses.create did not return output_text.",
+      );
+    }
+
+    return {
+      content: assistantResponseContent,
+      tool_calls: toolCalls,
+    };
+  } catch (err) {
+    console.error("Error calling OpenAI Responses API:", err);
+    if (err instanceof Error) {
+      throw svelteKitError(
+        500,
+        `Failed to process Responses API request: ${err.message}`,
+      );
+    }
+    throw svelteKitError(
       500,
-      `Failed to process Responses API request: ${error.message || "Unknown error"}`,
+      "Failed to process Responses API request: Unknown error",
     );
   }
 }

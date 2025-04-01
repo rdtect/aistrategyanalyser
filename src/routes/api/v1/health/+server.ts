@@ -2,7 +2,7 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { version } from "$app/environment";
 import { browser } from "$app/environment";
-import { IDBService } from "$lib/services/idb.svelte";
+import { IDBService } from "$lib/services/idb";
 
 /**
  * Health check endpoint v1

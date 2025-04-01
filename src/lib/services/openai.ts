@@ -4,10 +4,12 @@
  */
 
 // Define message format for OpenAI APIs
-export interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
+// Allow role 'tool' and associated properties
+export type OpenAIMessage =
+  | { role: "user"; content: string | null }
+  | { role: "system"; content: string | null }
+  | { role: "assistant"; content: string | null; tool_calls?: any[] }
+  | { role: "tool"; content: string | null; tool_call_id: string };
 
 // Define OpenAI request options interface
 export interface OpenAIRequestOptions {
@@ -15,14 +17,7 @@ export interface OpenAIRequestOptions {
   temperature?: number;
   systemMessage?: string;
   useStream?: boolean; // Control whether to use streaming
-  tools?: Array<{
-    type: "function";
-    function: {
-      name: string;
-      description: string;
-      parameters: Record<string, any>;
-    };
-  }>;
+  tools?: Array<{ type: string; [key: string]: any }>;
   responseFormat?: {
     type: "text" | "json_object";
   };
@@ -32,14 +27,25 @@ export interface OpenAIRequestOptions {
   };
 }
 
+// Define the unified response structure type
+export type UnifiedAIResponseType = {
+  response: {
+    message: {
+      content: string | null;
+      tool_calls: any[] | undefined;
+    };
+  };
+  metadata: any;
+};
+
 /**
  * Generate an AI response using the OpenAI API
  * Uses the versioned API endpoint and conditionally streams based on the use case
  */
 export async function generateAIResponse(
-  input: string | Message[],
+  input: string | OpenAIMessage[],
   options: OpenAIRequestOptions = {},
-) {
+): Promise<UnifiedAIResponseType> {
   try {
     // Decide whether to use streaming based on options
     // Default to streaming only for longer responses where user experience benefits
@@ -62,7 +68,7 @@ export async function generateAIResponse(
  * This is more cost-effective for shorter responses
  */
 async function generateStandardResponse(
-  input: string | Message[],
+  input: string | OpenAIMessage[],
   options: OpenAIRequestOptions = {},
 ) {
   // Format input as messages if it's a string
@@ -99,14 +105,40 @@ async function generateStandardResponse(
   }
 
   const data = await response.json();
-  return {
-    response: data.text,
-    metadata: {
-      model: data.model,
-      usage: data.usage,
-      id: data.id,
-    },
-  };
+
+  // Handle different response structures from the backend
+  if (data.text !== undefined) {
+    // Standard Chat Completion response
+    return {
+      // Ensure the returned object structure matches what the caller expects
+      // Let's match the structure potentially returned by handleResponsesAPI for consistency
+      response: {
+        message: { content: data.text, tool_calls: undefined },
+      },
+      metadata: {
+        model: data.model,
+        usage: data.usage,
+        id: data.id,
+      },
+    };
+  } else if (data.content !== undefined || data.tool_calls !== undefined) {
+    // Response from handleResponsesAPI (potentially with tools)
+    return {
+      response: {
+        message: { content: data.content, tool_calls: data.tool_calls },
+      },
+      metadata: {
+        // Note: Backend doesn't currently return model/usage/id for Responses API path
+        model: options.model || "gpt-4o",
+        usage: undefined,
+        id: undefined,
+      },
+    };
+  } else {
+    // Fallback or error case if response format is unexpected
+    console.error("Unexpected response format from /api/v1/openai:", data);
+    throw new Error("Unexpected response format from API");
+  }
 }
 
 /**
@@ -114,9 +146,9 @@ async function generateStandardResponse(
  * This is better for longer responses where seeing incremental output improves UX
  */
 async function generateStreamingResponse(
-  input: string | Message[],
+  input: string | OpenAIMessage[],
   options: OpenAIRequestOptions = {},
-) {
+): Promise<UnifiedAIResponseType> {
   let fullContent = "";
 
   const streamResult = await generateStreamingAIResponse(input, options);
@@ -127,12 +159,18 @@ async function generateStreamingResponse(
     fullContent += deltaContent;
   });
 
-  // Return in the same format as standard response
+  // Return in the unified format
   return {
-    response: fullContent,
+    response: {
+      message: {
+        content: fullContent,
+        tool_calls: undefined,
+      },
+    },
     metadata: {
       model: options.model || "gpt-4o",
-      // We don't have usage stats for streaming responses
+      usage: undefined,
+      id: undefined,
     },
   };
 }
@@ -167,7 +205,7 @@ export function extractOpenAIStreamContent(chunk: string): string {
  * Uses the versioned API endpoint with streaming enabled
  */
 export async function generateStreamingAIResponse(
-  input: string | Message[],
+  input: string | OpenAIMessage[],
   options: OpenAIRequestOptions = {},
 ) {
   try {

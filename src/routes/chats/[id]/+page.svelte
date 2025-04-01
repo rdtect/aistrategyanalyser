@@ -1,12 +1,10 @@
 <script lang="ts">
   import { page } from '$app/state';
-  import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import { chatStore } from '../(components)/ChatStore.svelte';
   import ChatMessage from '../(components)/ChatMessage.svelte';
   import ChatInput from '../(components)/ChatInput.svelte';
   import IconBrain from '@lucide/svelte/icons/brain';
-  import { v4 as uuidv4 } from 'uuid';
   import { ChatService } from '$lib/services/ChatService';
   import { createChatLogic } from './ChatLogic.svelte.ts';
   
@@ -27,15 +25,6 @@
   let messagesContainer = $state<HTMLElement | null>(null);
   let isInitializing = $state(false);
   let lastSetChatId = $state<string | null>(null);
-  
-  // Debug state
-  let debuggingEnabled = browser && (typeof localStorage !== 'undefined') && localStorage.getItem('enableDebug') === 'true';
-  
-  function logDebug(label: string, info: any) {
-    if (debuggingEnabled && browser) {
-      console.log(`[DEBUG] ${label}:`, info);
-    }
-  }
   
   // Handle server-side errors and data
   $effect(() => {

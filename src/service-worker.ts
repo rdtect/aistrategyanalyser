@@ -1,8 +1,21 @@
 /// <reference types="@sveltejs/kit" />
 /// <reference no-default-lib="true"/>
-/// <reference lib="es2020" />
-/// <reference lib="WebWorker" />
+/// <reference lib="esnext" />
+/// <reference lib="webworker" />
 
+// Add type declarations for service worker types
+interface ExtendableEvent extends Event {
+  waitUntil(fn: Promise<any>): void;
+}
+
+interface FetchEvent extends Event {
+  request: Request;
+  respondWith(response: Promise<Response> | Response): void;
+}
+
+
+// Properly cast self to ServiceWorkerGlobalScope
+const sw: ServiceWorkerGlobalScope = self as unknown as ServiceWorkerGlobalScope;
 import { build, files, version } from "$service-worker";
 
 // Create a unique cache name for this deployment
@@ -15,157 +28,159 @@ const ASSETS = [
 ].map((file) => (file.startsWith("/") ? file : `/${file}`));
 
 // Additional resources to cache on install
-const ADDITIONAL_ASSETS = [
-  "/",
-  "/chats",
-  "/settings",
-  "/offline",
-  "/api/v1/health",
-];
+const ADDITIONAL_ASSETS = ["/", "/chats", "/settings", "/api/v1/health", "/offline"];
 
 // Install handler - precache all static assets
-self.addEventListener("install", (event) => {
-  // Use faster skipWaiting to avoid waiting for clients to close
-  self.skipWaiting();
-
+sw.addEventListener("install", (event: ExtendableEvent) => {
   // Cache our assets when the service worker installs
-  async function addFilesToCache() {
-    const cache = await caches.open(CACHE);
-    await cache.addAll([...ASSETS, ...ADDITIONAL_ASSETS]);
-    console.log("Service worker installed and assets cached");
-  }
+  event.waitUntil(
+    (async () => {
+      try {
+        // Skip waiting first
+        const skipWaitingPromise = sw.skipWaiting();
 
-  event.waitUntil(addFilesToCache());
+        // Open cache and add assets in parallel
+        const cache = await caches.open(CACHE);
+        const cachePromise = cache.addAll([...ASSETS, ...ADDITIONAL_ASSETS]);
+
+        // Wait for both operations to complete
+        await Promise.all([skipWaitingPromise, cachePromise]);
+        console.log("Service worker installed and assets cached");
+      } catch (error) {
+        console.error("Failed to cache assets:", error);
+      }
+    })()
+  );
 });
 
 // Activate handler - clean up old caches
-self.addEventListener("activate", (event) => {
-  // Take control immediately, don't wait for reload
-  self.clients.claim();
-
+sw.addEventListener("activate", (event: ExtendableEvent) => {
   // Delete old caches
-  async function deleteOldCaches() {
-    const keys = await caches.keys();
-    const oldCaches = keys.filter((key) => key !== CACHE);
-    await Promise.all(oldCaches.map((key) => caches.delete(key)));
-    console.log("Old caches deleted");
-  }
+  event.waitUntil(
+    (async () => {
+      try {
+        // Claim clients first
+        const claimPromise = sw.clients.claim();
 
-  event.waitUntil(deleteOldCaches());
+        // Delete old caches in parallel
+        const keys = await caches.keys();
+        const oldCaches = keys.filter((key) => key !== CACHE);
+        const deleteCachesPromise = Promise.all(oldCaches.map((key) => caches.delete(key)));
+
+        // Wait for both operations to complete
+        await Promise.all([claimPromise, deleteCachesPromise]);
+        console.log("Old caches deleted and clients claimed");
+      } catch (error) {
+        console.error("Failed to delete old caches:", error);
+      }
+    })()
+  );
 });
 
 // Fetch handler - provide offline support
-self.addEventListener("fetch", (event) => {
+sw.addEventListener("fetch", (event: FetchEvent) => {
   // Only handle GET requests
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
   // Skip cross-origin requests
-  if (url.origin !== self.location.origin) return;
+  if (url.origin !== sw.location.origin) return;
 
   // For API requests, try network first, fallback to cache
   if (url.pathname.startsWith("/api/")) {
-    async function apiNetworkFirst() {
-      try {
-        // Try network first
-        const response = await fetch(event.request);
+    event.respondWith(
+      (async () => {
+        try {
+          // Try network first
+          const response = await fetch(event.request);
 
-        // Cache successful responses
-        if (response.ok) {
-          const cache = await caches.open(CACHE);
-          cache.put(event.request, response.clone());
+          // Cache successful responses
+          if (response.ok) {
+            const cache = await caches.open(CACHE);
+            await cache.put(event.request, response.clone());
+          }
+
+          return response;
+        } catch (error) {
+          // Network failed, try cache
+          const cachedResponse = await caches.match(event.request);
+
+          // If we have a cached response, use it
+          if (cachedResponse) return cachedResponse;
+
+          // Otherwise return a default offline API response
+          return new Response(
+            JSON.stringify({
+              error: "You are offline and this request is not cached.",
+              offline: true,
+            }),
+            {
+              status: 503,
+              headers: { "Content-Type": "application/json" },
+            },
+          );
         }
-
-        return response;
-      } catch (error) {
-        // Network failed, try cache
-        const cachedResponse = await caches.match(event.request);
-
-        // If we have a cached response, use it
-        if (cachedResponse) return cachedResponse;
-
-        // Otherwise return a default offline API response
-        return new Response(
-          JSON.stringify({
-            error: "You are offline and this request is not cached.",
-            offline: true,
-          }),
-          {
-            status: 503,
-            headers: { "Content-Type": "application/json" },
-          },
-        );
-      }
-    }
-
-    event.respondWith(apiNetworkFirst());
+      })()
+    );
     return;
   }
 
   // For page navigations (HTML requests), use network first with offline fallback
   if (event.request.mode === "navigate") {
-    async function navigationNetworkFirst() {
-      try {
-        // Try to get from network first
-        const response = await fetch(event.request);
+    event.respondWith(
+      (async () => {
+        try {
+          // Try to get from network first
+          const response = await fetch(event.request);
 
-        // Cache successful responses for next time
-        if (response.ok) {
-          const cache = await caches.open(CACHE);
-          cache.put(event.request, response.clone());
+          // Cache successful responses for next time
+          if (response.ok) {
+            const cache = await caches.open(CACHE);
+            await cache.put(event.request, response.clone());
+          }
+
+          return response;
+        } catch (error) {
+          // Network failed, try cache
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) return cachedResponse;
+
+          // If no cached response, try the offline page
+          const offlineResponse = await caches.match("/offline");
+          return offlineResponse || new Response("You are offline", {
+            status: 503,
+            headers: { "Content-Type": "text/plain" }
+          });
         }
-
-        return response;
-      } catch (error) {
-        // Network failed, try cache
-        const cachedResponse = await caches.match(event.request);
-        if (cachedResponse) return cachedResponse;
-
-        // If no cached response, try the offline page
-        return caches.match("/offline");
-      }
-    }
-
-    event.respondWith(navigationNetworkFirst());
+      })()
+    );
     return;
   }
 
   // For other requests (assets, images, etc.), use cache-first strategy
-  async function cacheFirst() {
-    // Check cache first
-    const cachedResponse = await caches.match(event.request);
-    if (cachedResponse) return cachedResponse;
+  event.respondWith(
+    (async () => {
+      const cachedResponse = await caches.match(event.request);
+      if (cachedResponse) return cachedResponse;
 
-    // If not in cache, go to network
-    try {
-      const networkResponse = await fetch(event.request);
+      try {
+        const networkResponse = await fetch(event.request);
 
-      // Cache successful responses for static assets
-      if (networkResponse.ok) {
-        // Only cache static assets, not dynamic content
-        if (
-          url.pathname.match(
-            /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/,
-          ) ||
-          ASSETS.includes(url.pathname) ||
-          ADDITIONAL_ASSETS.includes(url.pathname)
-        ) {
+        // Cache successful responses for future use
+        if (networkResponse.ok) {
           const cache = await caches.open(CACHE);
-          cache.put(event.request, networkResponse.clone());
+          await cache.put(event.request, networkResponse.clone());
         }
+
+        return networkResponse;
+      } catch (error) {
+        console.error("Failed to fetch resource:", error);
+        return new Response("Failed to fetch resource", {
+          status: 408,
+          headers: { "Content-Type": "text/plain" }
+        });
       }
-
-      return networkResponse;
-    } catch (error) {
-      // If both cache and network fail, return a simple offline message
-      // Only for non-critical assets
-      return new Response("Network error happened", {
-        status: 408,
-        headers: { "Content-Type": "text/plain" },
-      });
-    }
-  }
-
-  event.respondWith(cacheFirst());
+    })()
+  );
 });

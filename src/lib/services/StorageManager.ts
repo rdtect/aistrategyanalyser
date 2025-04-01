@@ -68,15 +68,26 @@ export async function getStorageEstimate(): Promise<StorageEstimate | null> {
   }
 
   try {
-    const estimate = await navigator.storage.estimate();
+    // Cast to any to access potential non-standard property
+    const estimate: any = await navigator.storage.estimate();
     const persisted = await navigator.storage.persisted();
 
-    return {
+    // Define our extended interface locally
+    interface ExtendedStorageEstimate {
+      quota: number;
+      usage: number;
+      usageDetails?: { [key: string]: number };
+      persisted: boolean;
+    }
+
+    const result: ExtendedStorageEstimate = {
       quota: estimate.quota || 0,
       usage: estimate.usage || 0,
-      usageDetails: estimate.usageDetails,
+      // Safely access usageDetails if it exists
+      usageDetails: estimate.usageDetails ?? {},
       persisted,
     };
+    return result;
   } catch (error) {
     console.error("Error getting storage estimate:", error);
     return null;

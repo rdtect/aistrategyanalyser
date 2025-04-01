@@ -1,70 +1,76 @@
 <!-- Main application layout -->
 <script lang="ts">
   import '../app.css';
-  import { page } from '$app/state';
+  // import { page } from '$app/state';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import { initializeStoragePersistence } from '$lib/services/StorageManager';
+  import IconWifiOff from '@lucide/svelte/icons/wifi-off'; // Import icon
+  import { ToastProvider } from '@skeletonlabs/skeleton-svelte'; // Import ToastProvider
   
   // Props
   let { children } = $props();
   
   // Reactive state with Svelte 5 runes
-  let isDark = $state(true);
+  let isOnline = $state(true);
   
-  // Set up dark mode on initial load - this is now just backup in case AppBar is not used
-  $effect(() => {
-    if (browser) {
-      // Check for dark mode preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const savedTheme = localStorage.getItem('theme');
-      
-      if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
-        document.documentElement.classList.add('dark');
-        isDark = true;
-      } else {
-        document.documentElement.classList.remove('dark');
-        isDark = false;
-      }
-    }
-  });
+  // Initialize storage persistence and online status
+  onMount(() => {
+    if (!browser) return;
 
-  // Initialize storage persistence on mount
-  onMount(async () => {
-    if (browser) {
-      // Register service worker (handled by SvelteKit for production builds)
-      if ('serviceWorker' in navigator) {
-        // Check if we're in development mode
-        const isDev = import.meta.env.DEV;
-        
-        // Only log service worker status in development
-        if (isDev) {
-          navigator.serviceWorker.getRegistrations().then(registrations => {
-            console.log(`Service workers registered: ${registrations.length}`);
-          });
-        }
+    // Register service worker (handled by SvelteKit for production builds)
+    if ('serviceWorker' in navigator) {
+      // Check if we're in development mode
+      const isDev = import.meta.env.DEV;
+      if (isDev) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          console.log(`Service workers registered: ${registrations.length}`);
+        });
       }
-      
-      // Request persistent storage
-      const persistResult = await initializeStoragePersistence();
-      console.log(`Storage persistence ${persistResult ? 'granted' : 'denied'}`);
-      
-      // Listen for online/offline events
-      window.addEventListener('online', () => {
-        console.log('App is online');
-        document.documentElement.classList.remove('app-offline');
-      });
-      
-      window.addEventListener('offline', () => {
-        console.log('App is offline');
-        document.documentElement.classList.add('app-offline');
-      });
-      
-      // Set initial online status
-      if (!navigator.onLine) {
-        document.documentElement.classList.add('app-offline');
+
+      // In production, add event listeners for updates etc.
+      else {
+        // Listen for service worker updates
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          console.log('Service worker updated and controlling the page');
+        });
+
+        // Check for service worker updates periodically if desired
+        setInterval(() => {
+          navigator.serviceWorker.getRegistration().then(registration => {
+            if (registration) registration.update();
+          });
+        }, 60 * 60 * 1000); // Check once per hour
       }
     }
+    
+    // Request persistent storage
+    initializeStoragePersistence().then(persistResult => {
+      console.log(`Storage persistence ${persistResult ? 'granted' : 'denied'}`);
+    });
+    
+    // Update online status
+    const updateOnlineStatus = () => {
+      isOnline = navigator.onLine;
+      if (isOnline) {
+        document.documentElement.classList.remove('app-offline');
+      } else {
+        document.documentElement.classList.add('app-offline');
+      }
+    };
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Set initial online status
+    updateOnlineStatus();
+    
+    // Return cleanup function
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
   });
 </script>
 
@@ -77,25 +83,43 @@
   <!-- Main content -->
   <main class="flex-1 overflow-hidden">
     <div class="h-full">
-      {@render children()}
+      <!-- Wrap content with ToastProvider -->
+      <ToastProvider>
+        {@render children()}
+      </ToastProvider>
     </div>
   </main>
   
-  <!-- Elements that appear online-only -->
+  <!-- Online-only elements placeholder (if needed later) -->
+  <!-- 
   <div class="app-online-only hidden">
-    <!-- This element will be disabled when offline -->
-    <button class="bg-primary-500 text-white p-2 rounded">Online Only Action</button>
+     ... online-only content ...
   </div>
-</div>
+  -->
 
-<!-- Add offline indicator if needed -->
-{#if browser}
-  <div class="offline-indicator" class:hidden={navigator.onLine}>
-    <div class="p-2 bg-warning-500 text-warning-900 text-sm text-center">
-      You are currently offline. Some features may be limited.
+  <!-- Enhanced offline indicator -->
+  {#if browser}
+    <div class="offline-indicator" class:hidden={isOnline}>
+      <div class="p-4 bg-surface-100-800-token border-t border-surface-500/20">
+        <div class="max-w-2xl mx-auto">
+          <div class="flex items-center gap-3">
+            <div class="text-warning-500">
+              <IconWifiOff class="h-5 w-5" />
+            </div>
+            <div class="flex-1">
+              <p class="text-sm font-medium">You're offline. Some features may be limited, but you can still:</p>
+              <p class="text-sm text-surface-600-300-token mt-1">• Access your previously loaded chats</p>
+              <p class="text-sm text-surface-600-300-token">• Use basic features and view cached content</p>
+            </div>
+            <button onclick={() => window.location.reload()} class="btn btn-sm variant-soft">
+              Try to Reconnect
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-{/if}
+  {/if}
+</div>
 
 <style>  
   main {
@@ -117,9 +141,4 @@
     transform: translateY(100%);
   }
   
-  /* Add CSS for offline mode visuals */
-  :global(.app-offline) .app-online-only {
-    opacity: 0.5;
-    pointer-events: none;
-  }
 </style>

@@ -3,7 +3,6 @@
  */
 
 export * from "./urlUtils";
-export { extractValidId, isValidUuid, validateUuidParam } from "./urlUtils";
+// export { extractValidId, isValidUuid, validateUuidParam } from "./urlUtils"; // Redundant named export
 export * from "./errorHandler";
-export * from "$lib/utils/formatters";
-export * from "./validateUuidParam";
+export * from "./formatters"; // Use relative path

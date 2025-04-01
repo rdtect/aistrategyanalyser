@@ -1,37 +1,10 @@
 {
 	"/": [
-		"src/routes/+page.ts",
-		"src/routes/+page.server.ts",
-		"src/routes/+layout.ts",
-		"src/routes/+layout.ts"
+		"src/routes/+page.server.ts"
 	],
 	"/api": [
 		"src/routes/api/+layout.server.ts",
 		"src/routes/api/+server.ts"
-	],
-	"/api/ai": [
-		"src/routes/api/ai/+server.ts"
-	],
-	"/api/chats": [
-		"src/routes/api/chats/+server.ts"
-	],
-	"/api/chats/import": [
-		"src/routes/api/chats/import/+server.ts"
-	],
-	"/api/chats/[id]": [
-		"src/routes/api/chats/[id]/+server.ts"
-	],
-	"/api/chat": [
-		"src/routes/api/chat/+server.ts"
-	],
-	"/api/health": [
-		"src/routes/api/health/+server.ts"
-	],
-	"/api/messages": [
-		"src/routes/api/messages/+server.ts"
-	],
-	"/api/sample-chats/[id]": [
-		"src/routes/api/sample-chats/[id]/+server.ts"
 	],
 	"/api/v1/chats": [
 		"src/routes/api/v1/chats/+server.ts"
@@ -48,32 +21,27 @@
 	"/chats": [
 		"src/routes/chats/+page.js",
 		"src/routes/chats/+page.server.ts",
+		"src/routes/chats/+layout.ts",
 		"src/routes/chats/+layout.server.ts",
-		"src/routes/+layout.ts",
-		"src/routes/chats/+layout.server.ts",
-		"src/routes/+layout.ts"
+		"src/routes/chats/+layout.ts",
+		"src/routes/chats/+layout.server.ts"
 	],
 	"/chats/new": [
 		"src/routes/chats/new/+page.server.ts",
-		"src/routes/chats/+layout.server.ts",
-		"src/routes/+layout.ts"
+		"src/routes/chats/+layout.ts",
+		"src/routes/chats/+layout.server.ts"
 	],
 	"/chats/[id]": [
 		"src/routes/chats/[id]/+page.js",
 		"src/routes/chats/[id]/+page.server.ts",
-		"src/routes/chats/+layout.server.ts",
-		"src/routes/+layout.ts"
+		"src/routes/chats/+layout.ts",
+		"src/routes/chats/+layout.server.ts"
 	],
 	"/chats/[id]/export": [
 		"src/routes/chats/[id]/export/+page.ts",
 		"src/routes/chats/[id]/export/+page.server.ts",
-		"src/routes/chats/+layout.server.ts",
-		"src/routes/+layout.ts"
+		"src/routes/chats/+layout.ts",
+		"src/routes/chats/+layout.server.ts"
 	],
-	"/offline": [
-		"src/routes/+layout.ts"
-	],
-	"/settings": [
-		"src/routes/+layout.ts"
-	]
+	"/settings": []
 }

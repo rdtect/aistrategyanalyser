@@ -1,27 +1,35 @@
 /** @type {import('./$types').PageLoad} */
-import { loadChatById } from "../../(components)/ChatUtils";
-import { marked } from "marked";
+import { error } from "@sveltejs/kit";
+import { ChatService } from "$lib/services/ChatService";
 import type { PageLoad } from "./$types";
+import type { Chat, Message } from "$lib/types"; // Updated path
 
-export const load: PageLoad = async ({ params }) => {
-  const { id } = params;
-  const chat = loadChatById(id);
+// Define expected parent data structure (adjust as needed)
+interface ParentData {
+  chat?: Chat | null; // Make chat optional or ensure it's always loaded
+  // Add other properties loaded by parent layouts if any
+}
 
-  // During server-side rendering, we'll return minimal data
-  // The full data will be loaded on the client side
-  if (typeof window === "undefined") {
-    return {
-      chat: null,
-      markdown: "",
-      html: "",
-    };
+export const load: PageLoad = async ({ params, parent }) => {
+  const chatId = params.id;
+  // Use type assertion for parent data
+  const { chat: parentChat } = (await parent()) as ParentData;
+
+  let chat: Chat | null = null;
+
+  // Check if parentChat exists and matches the current chatId
+  if (parentChat && parentChat.id === chatId) {
+    chat = parentChat;
+  } else {
+    // Use ChatService to get the chat on the client-side
+    chat = await ChatService.getChatById(chatId);
   }
 
   if (!chat) {
-    return { status: 302, redirect: "/chats" };
+    throw error(404, "Chat not found");
   }
 
-  // Generate markdown
+  // Generate markdown - Now 'chat' is resolved
   let markdown = `# Strategic Analysis: ${chat.name}\n\n`;
   markdown += `*Generated: ${new Date().toLocaleDateString()}*\n\n`;
 
@@ -33,33 +41,29 @@ export const load: PageLoad = async ({ params }) => {
     markdown += `- **Region:** ${chat.context.region || "N/A"}\n\n`;
   }
 
-  markdown += `## Analysis Results\n\n`;
+  markdown += `## Conversation\n\n`;
 
-  // Add messages excluding system messages
-  let currentQuestion = "";
-
-  chat.messages.forEach((msg) => {
+  // Add messages
+  chat.messages.forEach((msg: Message) => {
+    // Add type to msg
     const content = msg.content;
+    // Use 'role' based on the corrected type/data
+    const role =
+      msg.role === "user"
+        ? "User"
+        : msg.role === "assistant"
+          ? "Assistant"
+          : "System";
 
-    // Check if it's a question header
-    if (msg.sender === "user" && content.startsWith("## ")) {
-      currentQuestion = content;
-      markdown += `${content}\n\n`;
-    }
-    // If it's an AI response to a question
-    else if (msg.sender === "ai" && currentQuestion) {
-      markdown += `${content}\n\n`;
-      currentQuestion = "";
-    }
-    // Skip other system or administrative messages
+    // Basic formatting
+    markdown += `**${role}:**\n${content}\n\n`;
   });
 
-  // Generate HTML for preview
-  const html = marked.parse(markdown);
-
   return {
-    chat,
-    markdown,
-    html,
+    chat: chat, // Pass the resolved chat object
+    markdownContent: markdown,
+    // stream: { // Example if you were streaming data
+    //   chat: chatPromise // Pass the promise if needed downstream
+    // }
   };
 };

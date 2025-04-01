@@ -1,70 +1,73 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { browser } from "$app/environment";
-  import { onMount } from 'svelte';
+  import IconX from '@lucide/svelte/icons/x';
+  import IconEye from '@lucide/svelte/icons/eye';
+  import IconEyeOff from '@lucide/svelte/icons/eye-off';
+  import { appSettings, resetOpenAISettings } from '$lib/stores/config.svelte.ts';
+  import { getContext } from 'svelte';
+  import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
+  
+  // Define ToastSettings locally as it might not be exported directly
+  interface ToastSettings {
+    message: string;
+    title?: string;
+    type?: 'info' | 'success' | 'error'; // Corrected types based on error
+    background?: string; // For custom classes
+    autohide?: boolean;
+    timeout?: number;
+    // Add other possible fields from Skeleton docs if needed
+  }
   
   // State for settings
-  let apiKey = $state('');
-  let model = $state('gpt-4-turbo-preview');
-  let temperature = $state(0.7);
-  let maxTokens = $state(4000);
-  let isSaving = $state(false);
   let showApiKey = $state(false);
   
-  // Load settings on mount
-  onMount(() => {
-    if (browser) {
-      const savedSettings = localStorage.getItem('openai_settings');
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-        apiKey = settings.apiKey || '';
-        model = settings.model || 'gpt-4-turbo-preview';
-        temperature = settings.temperature || 0.7;
-        maxTokens = settings.maxTokens || 4000;
-      }
-    }
-  });
+  // Get toast context
+  const toast: ToastContext | undefined = browser ? getContext('toast') : undefined;
   
-  // Save settings
-  async function saveSettings(e: Event) {
-    e.preventDefault();
-    if (!browser) return;
-    
-    isSaving = true;
-    try {
-      const settings = {
-        apiKey,
-        model,
-        temperature,
-        maxTokens
-      };
-      localStorage.setItem('openai_settings', JSON.stringify(settings));
-      
-      // Show success message
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg';
-      toast.textContent = 'Settings saved successfully';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-      
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-      
-      // Show error message
-      const toast = document.createElement('div');
-      toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg';
-      toast.textContent = 'Failed to save settings';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-      
-    } finally {
-      isSaving = false;
+  // Helper to trigger toasts safely (handles case where context might not be ready)
+  function triggerToast(settings: ToastSettings) {
+    if (toast) {
+      toast.create(settings);
+    } else if (browser) {
+      // Fallback if context wasn't found (shouldn't happen with Provider in layout)
+      console.warn('Toast context not found, using alert fallback.');
+      alert(settings.message);
     }
   }
   
   // Go back to home
   function goBack() {
-    goto('/');
+    goto('/chats');
+  }
+
+  // Function to manually save settings
+  function saveSettings() {
+    if (!browser) return;
+    try {
+      // Get the current state from the store
+      const settingsToSave = JSON.stringify(appSettings);
+      localStorage.setItem('app_settings', settingsToSave);
+      triggerToast({ 
+        message: 'Settings saved successfully.', 
+        background: 'variant-filled-success',
+        autohide: true,
+        timeout: 1500
+      });
+      
+      // Navigate back after a short delay
+      setTimeout(() => {
+        goto('/chats');
+      }, 1600);
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      triggerToast({ 
+        message: `Failed to save settings: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        background: 'variant-filled-error',
+        autohide: true, 
+        timeout: 5000 
+      });
+    }
   }
 </script>
 
@@ -83,14 +86,12 @@
         title="Go back"
         aria-label="Go back to home page"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        <IconX class="h-6 w-6" />
       </button>
     </div>
     
     <!-- Settings form -->
-    <form onsubmit={saveSettings} class="space-y-6">
+    <form class="space-y-6">
       <!-- API Key -->
       <div>
         <label class="block text-sm font-medium mb-2" for="apiKey">
@@ -100,7 +101,7 @@
           <input
             type={showApiKey ? 'text' : 'password'}
             id="apiKey"
-            bind:value={apiKey}
+            bind:value={appSettings.openai.apiKey}
             class="w-full px-4 py-2 bg-surface-800 border border-surface-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="sk-..."
           />
@@ -111,15 +112,9 @@
             aria-label={showApiKey ? "Hide API key" : "Show API key"}
           >
             {#if showApiKey}
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-              </svg>
+              <IconEyeOff class="h-5 w-5" />
             {:else}
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
-                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-              </svg>
+              <IconEye class="h-5 w-5" />
             {/if}
           </button>
         </div>
@@ -135,9 +130,10 @@
         </label>
         <select
           id="model"
-          bind:value={model}
+          bind:value={appSettings.openai.model}
           class="w-full px-4 py-2 bg-surface-800 border border-surface-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
+          <option value="gpt-4o">GPT-4o</option>
           <option value="gpt-4-turbo-preview">GPT-4 Turbo</option>
           <option value="gpt-4">GPT-4</option>
           <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
@@ -147,12 +143,12 @@
       <!-- Temperature -->
       <div>
         <label class="block text-sm font-medium mb-2" for="temperature">
-          Temperature: {temperature}
+          Temperature: {appSettings.openai.temperature}
         </label>
         <input
           type="range"
           id="temperature"
-          bind:value={temperature}
+          bind:value={appSettings.openai.temperature}
           min="0"
           max="2"
           step="0.1"
@@ -167,14 +163,14 @@
       <!-- Max Tokens -->
       <div>
         <label class="block text-sm font-medium mb-2" for="maxTokens">
-          Max Tokens: {maxTokens}
+          Max Tokens: {appSettings.openai.maxTokens}
         </label>
         <input
           type="range"
           id="maxTokens"
-          bind:value={maxTokens}
+          bind:value={appSettings.openai.maxTokens}
           min="1000"
-          max="8000"
+          max="8192"
           step="1000"
           class="w-full"
         />
@@ -187,18 +183,11 @@
       <!-- Save button -->
       <div class="flex justify-end">
         <button
-          type="submit"
+          type="button"
+          onclick={saveSettings}
           class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isSaving}
         >
-          {#if isSaving}
-            <span class="flex items-center gap-2">
-              <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-              Saving...
-            </span>
-          {:else}
-            Save Settings
-          {/if}
+          Save Settings
         </button>
       </div>
     </form>

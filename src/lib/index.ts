@@ -1,5 +1,5 @@
 // Main barrel file for lib exports
-import { IDBService } from "./services/idb.svelte";
+import { IDBService } from "./services/idb";
 // Export services
 export { IDBService };
 export * from "./services/openai";

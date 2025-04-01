@@ -330,3 +330,25 @@ When working with Svelte 5 effects:
 - Use timeouts to batch updates that may trigger multiple effects
 - Create new object references when updating arrays or objects
 - Always include cleanup logic for timeouts and subscriptions
+
+
+## 2025-03-28: SvelteKit App.Error Type Usage
+
+### Issue
+
+The `ErrorBoundary.svelte` component attempted to import `App.Error` directly from `@sveltejs/kit` or `$app/kit`, causing a TypeScript error because `App.Error` is a globally defined type ambiently declared in `src/app.d.ts`. The interface definition in `src/app.d.ts` was also commented out.
+
+### Cause
+
+Incorrect understanding of how SvelteKit ambient types work. Global types defined in `app.d.ts` do not need to be imported. The interface definition itself was also missing.
+
+### Solution
+
+1. Uncommented the `interface Error {}` line within the `declare global { namespace App { ... } }` block in `src/app.d.ts`.
+2. Removed the unnecessary `import type { App } from ...` statement from `src/lib/components/ui/errors/ErrorBoundary.svelte`.
+
+### Prevention
+
+- Remember that types defined within `declare global { namespace App { ... } }` in `src/app.d.ts` are globally available and do not require imports.
+- Ensure necessary interfaces within `app.d.ts` are uncommented and correctly defined.
+- Verify TypeScript errors related to imports and global types carefully.

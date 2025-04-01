@@ -1,19 +1,20 @@
-import { redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
+import { getChat } from "$lib/server/db/supabase";
 import type { PageServerLoad } from "./$types";
-import { loadChatById } from "../../(components)/ChatUtils";
+import type { Chat, Message } from "$lib/types";
 import { marked } from "marked";
 
 export const load: PageServerLoad = async ({ params }) => {
-  const { id } = params;
+  const chatId = params.id;
 
-  // Get chat with messages
-  const chat = loadChatById(id);
+  // Ensure getChat returns Promise<Chat | null> or similar
+  const chat: Chat | null = await getChat(chatId);
 
   if (!chat) {
-    throw redirect(302, "/chats");
+    throw error(404, "Chat not found");
   }
 
-  // Generate markdown
+  // Generate markdown - Now 'chat' is resolved
   let markdown = `# Strategic Analysis: ${chat.name}\n\n`;
   markdown += `*Generated: ${new Date().toLocaleDateString()}*\n\n`;
 
@@ -25,33 +26,33 @@ export const load: PageServerLoad = async ({ params }) => {
     markdown += `- **Region:** ${chat.context.region || "N/A"}\n\n`;
   }
 
-  markdown += `## Analysis Results\n\n`;
+  markdown += `## Conversation\n\n`;
 
-  // Add messages excluding system messages
-  let currentQuestion = "";
-
-  chat.messages.forEach((msg) => {
+  // Add messages
+  chat.messages.forEach((msg: Message) => {
+    // Add type to msg
     const content = msg.content;
+    // Use 'role' based on the type definition
+    const role =
+      msg.role === "user"
+        ? "User"
+        : msg.role === "assistant"
+          ? "Assistant"
+          : "System";
 
-    // Check if it's a question header
-    if (msg.sender === "user" && content.startsWith("## ")) {
-      currentQuestion = content;
-      markdown += `${content}\n\n`;
-    }
-    // If it's an AI response to a question
-    else if (msg.sender === "ai" && currentQuestion) {
-      markdown += `${content}\n\n`;
-      currentQuestion = "";
-    }
-    // Skip other system or administrative messages
+    // Basic formatting, assuming content is plain text
+    markdown += `**${role}:**\n${content}\n\n`;
+
+    // TODO: Add more sophisticated formatting for potential markdown/code in messages
   });
 
   // Generate HTML for preview
+  // Consider adding error handling for marked.parse if markdown can be invalid
   const html = marked.parse(markdown);
 
   return {
-    chat,
-    markdown,
+    chat: chat, // Pass the resolved chat object
+    markdownContent: markdown,
     html,
   };
 };

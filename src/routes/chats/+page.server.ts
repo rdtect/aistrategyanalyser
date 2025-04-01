@@ -1,27 +1,9 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { sampleChats } from "$lib";
 import crypto from "crypto";
 import { supabase } from "$lib/server/db/supabase";
 
 export const load: PageServerLoad = async ({ locals }) => {
-  console.log(`[Server] Loading sample chats: ${sampleChats.length} available`);
-
-  // Log each sample chat to verify they're loaded correctly
-  sampleChats.forEach((chat, index) => {
-    console.log(`[Server] Sample chat ${index}: ${chat.id} - ${chat.name}`);
-  });
-
-  // Return sample chats data with explicit mapping to ensure consistency
-  const sampleChatsData = sampleChats.map((chat) => ({
-    id: chat.id,
-    name: chat.name,
-    createdAt: chat.createdAt,
-    company: chat.context?.company || "",
-    industry: chat.context?.industry || "",
-    region: chat.context?.region || "",
-  }));
-
   const { data, error } = await supabase
     .from("chat_metadata")
     .select("*")
@@ -32,7 +14,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   }
 
   return {
-    sampleChats: sampleChatsData,
     chatMetadata: data ?? [],
   };
 };

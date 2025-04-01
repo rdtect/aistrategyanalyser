@@ -1,12 +1,5 @@
-import type { PageServerLoad } from "./$types";
-import { loadAllChats } from "./chats/(components)/ChatUtils";
+import { redirect } from '@sveltejs/kit';
 
-/**
- * Load data for the home page
- */
-export const load: PageServerLoad = async () => {
-  // Use the shared utility to load all chats
-  return {
-    chats: loadAllChats(),
-  };
-};
+export function load() {
+  throw redirect(307, '/chats');
+}
