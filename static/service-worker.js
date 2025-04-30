@@ -5,7 +5,7 @@ const CACHE_NAME = "ai-strategy-analyzer-v1";
 const STATIC_ASSETS = [
   "/",
   "/offline.html",
-  "/favicon.png",
+  "/favicon.ico",
   "/logo.svg",
   "/logo-dark.svg",
   "/manifest.json",

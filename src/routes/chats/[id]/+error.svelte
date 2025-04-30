@@ -19,7 +19,7 @@
       {page.error?.message || "We couldn't find the chat you're looking for."}
     </p>
     <div class="flex gap-4 justify-center">
-      <button class="btn variant-filled-primary" on:click={() => goto('/chats')}>
+      <button class="btn variant-filled-primary" onclick={() => goto('/chats')}>
         View All Chats
       </button>
       <a href="/" class="btn variant-ghost-primary">

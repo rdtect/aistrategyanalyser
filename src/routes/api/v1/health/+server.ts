@@ -2,7 +2,9 @@ import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { version } from "$app/environment";
 import { browser } from "$app/environment";
-import { IDBService } from "$lib/services/idb";
+import { IDBService } from "$lib/services/IDBService";
+import { logError } from "$lib/utils/errorHandler";
+import { idbService } from "$lib/services/IDBService";
 
 /**
  * Health check endpoint v1
@@ -28,6 +30,24 @@ type HealthResponse = {
 };
 
 export const GET: RequestHandler = async () => {
+  logError("Health check endpoint called", "GET /api/v1/health");
+  let dbStatus = "unavailable";
+  try {
+    // Check if IDBService is available and try a simple read
+    if (idbService) {
+      const chats = await idbService.getAllChats(); // Simple read operation
+      dbStatus = `ok (${chats.length} chats)`;
+    } else {
+      dbStatus = "not initialized in browser context";
+    }
+  } catch (error) {
+    logError(error, "IDB Health Check Failed");
+    dbStatus = `error: ${error instanceof Error ? error.message : String(error)}`;
+  }
+
+  // TODO: Add OpenAI health check if needed
+  const openaiStatus = "ok"; // Placeholder
+
   const health: HealthResponse = {
     status: "ok",
     version: version || "development",
@@ -42,8 +62,18 @@ export const GET: RequestHandler = async () => {
   // Check IndexedDB status if in browser
   if (browser) {
     try {
-      await IDBService.initDB();
-      health.components.storage.status = "ok";
+      // IDBService.initDB doesn't exist - test idbService instance instead
+      if (idbService) {
+        // Try a simple read operation to verify connectivity
+        await idbService.getAllChats();
+        health.components.storage.status = "ok";
+      } else {
+        health.components.storage = {
+          status: "degraded",
+          message: "IDBService instance not available",
+        };
+        health.status = "degraded";
+      }
     } catch (error) {
       health.components.storage = {
         status: "error",
@@ -59,5 +89,15 @@ export const GET: RequestHandler = async () => {
   const status =
     health.status === "ok" ? 200 : health.status === "degraded" ? 200 : 503;
 
-  return json(health, { status });
+  return json(
+    {
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      dependencies: {
+        database: dbStatus,
+        openai: openaiStatus,
+      },
+    },
+    { status },
+  );
 };

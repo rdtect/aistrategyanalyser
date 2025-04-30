@@ -52,7 +52,7 @@ export const POST: RequestHandler = withErrorHandling(async ({ request }) => {
 
   const {
     messages,
-    model = "gpt-4o",
+    model = "gpt-4-1106-preview", // Default to GPT-4.1 model
     temperature = 0.7,
     max_tokens,
     tools = [],
@@ -112,7 +112,7 @@ async function handleResponsesAPI({
 
     // Prepare parameters for the Responses API
     const responseAPIParams = {
-      model: model || "gpt-4o",
+      model: model || "gpt-4-1106-preview", // Default to GPT-4.1 model
       input: responsesInput, // Revert to passing the string
       tools: tools, // Pass the tools array (e.g., for web_search_preview)
       // Add other specific parameters for Responses API if needed

@@ -40,13 +40,46 @@ bun --bun vite dev
 
 ## Project Structure
 
-- `src/lib/components/chat/` - Chat-related components
-  - `Chat.svelte` - Main chat interface with message display
-  - `ChatInput.svelte` - Text input component for sending messages
-  - `ChatSidebar.svelte` - Sidebar with chat history
-  - `Chat.svelte.ts` - Chat manager with business logic
-- `src/lib/services/` - Service layer including AI response generation
-- `src/routes/` - SvelteKit routes and layouts
+The project follows a structure that combines SvelteKit's routing conventions with a shared library (`$lib`) and feature colocation.
+
+- `src/routes/` - SvelteKit routes and layouts.
+
+  - Feature-specific components, stores, services, and utilities are colocated within route directories, often inside a private `(lib)/` sub-directory (e.g., `src/routes/chats/(lib)/components/`, `src/routes/chats/(lib)/ChatUtils.ts`).
+
+- `src/lib/` - Shared core library code, accessible via the `$lib/` alias.
+
+  ```
+  src/lib/
+  ├── services/     # Shared services (e.g., OpenAI client, IDB, StorageManager)
+  ├── types.ts      # Global TypeScript type definitions
+  ├── utils/        # Shared utility functions (e.g., formatting, error handling)
+  └── server/       # Server-only modules
+  ```
+
+  (The `stores/` directory was removed as stores are now colocated).
+
+- **Key Patterns:**
+
+  1.  **Shared Core (`$lib/`)**: Only genuinely reusable code applicable to multiple features belongs here.
+  2.  **Colocation (`src/routes/.../(lib)/`)**: Feature-specific logic (components, stores, utils, services) resides within the feature's route directory, usually within a private `(lib)/` folder.
+  3.  **Barrel Files**: Use `index.ts` sparingly, primarily in `$lib/utils` and for specific exports if needed.
+
+- **Usage Examples:**
+
+  ```ts
+  // Importing shared code ($lib alias)
+  import type { Chat } from "$lib/types";
+  import { formatTime } from "$lib/utils/formatters";
+  import { openaiService } from "$lib/services/openai";
+
+  // Importing feature-specific code (relative paths within route)
+  // Example from src/routes/chats/(lib)/components/ChatItem.svelte
+  import { getChatSnippet } from "../ChatUtils";
+  ```
+
+- `src/app.html` - Main HTML template.
+- `src/service-worker.ts` - PWA service worker.
+- `memory-bank/` - AI-readable project context and logs.
 
 ## UI/UX Features
 
@@ -54,6 +87,16 @@ bun --bun vite dev
 - **Responsive Layout** - Adapts to different screen sizes with a collapsible sidebar
 - **Markdown Support** - Rich text formatting in messages with proper styling
 - **Real-time Updates** - Messages appear instantly with loading indicators
+
+## Developer Notes / Memory Bank
+
+The `memory-bank/` directory contains concise documentation optimized for AI assistant consumption. It includes:
+
+- **project_context.md**: Central document detailing goals, status, architecture, progress, and coding recommendations. This is the primary source of truth for development context.
+- **changeLog.md**: Log of significant changes and corrections.
+- **todo.md**: Centralized task list.
+
+This memory bank should be kept up-to-date with significant changes to aid AI-assisted development.
 
 ## License
 

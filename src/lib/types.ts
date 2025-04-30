@@ -85,5 +85,30 @@ export interface UserSettings {
 }
 
 // Placeholder types for AnalysisCreation component
-export type AnalysisResult = any;
-export type AnalysisSuggestion = any;
+export interface AnalysisResult {
+  id: string;
+  chatId: string;
+  title: string;
+  content: string;
+  timestamp: string;
+  category: string;
+  framework: string;
+  confidence?: number;
+}
+
+export interface AnalysisSuggestion {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: "high" | "medium" | "low";
+  implementationDifficulty?: "easy" | "medium" | "complex";
+  estimatedImpact?: number;
+}
+
+export interface AnalysisOptions {
+  framework?: string;
+  categories?: string[];
+  questionIds?: string[];
+  contextData?: Record<string, any>;
+}

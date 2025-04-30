@@ -1,92 +1,41 @@
-import { json, error as svelteError } from "@sveltejs/kit";
+import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { ChatService } from "$lib/services/ChatService";
+import { idbService } from '$lib/services/IDBService';
 import { withErrorHandling } from "$lib/utils/errorHandler";
-import { validateUuidParam } from "$lib/utils/validateUuidParam";
+import { validateUuidParam } from "$lib/utils/urlUtils";
 
 /**
  * Single Chat API v1
  * Provides access to individual chat data and operations
  */
 
+// Define params type
+type Params = { id: string };
+
 export const GET: RequestHandler = withErrorHandling(async ({ params }) => {
-  if (!params.id) {
-    throw svelteError(400, "Chat ID parameter is missing");
-  }
-  const chatId = validateUuidParam(params.id);
-
-  if (!chatId) {
-    throw svelteError(400, "Invalid chat ID format");
-  }
-
-  const chat = await ChatService.getChatById(chatId);
-
+  const chat = await idbService?.getChat(params.id);
   if (!chat) {
-    throw svelteError(404, "Chat not found");
+    return json({ error: 'Chat not found' }, { status: 404 });
   }
-
   return json(chat);
 });
 
-export const PUT: RequestHandler = withErrorHandling(
-  async ({ request, params }) => {
-    if (!params.id) {
-      throw svelteError(400, "Chat ID parameter is missing");
-    }
-    const chatId = validateUuidParam(params.id);
-
-    if (!chatId) {
-      throw svelteError(400, "Invalid chat ID format");
-    }
-
-    const chatData = await request.json();
-
-    if (!chatData || typeof chatData !== "object" || chatData.id !== chatId) {
-      throw svelteError(400, "Invalid chat data or ID mismatch");
-    }
-
-    const existingChat = await ChatService.getChatById(chatId);
-    if (!existingChat) {
-      throw svelteError(404, "Chat not found");
-    }
-
-    try {
-      await ChatService.saveChat(chatData);
-
-      return json({
-        id: chatId,
-        status: "updated",
-      });
-    } catch (err) {
-      console.error(`Error updating chat ${chatId}:`, err);
-      const message = err instanceof Error ? err.message : "Unknown error";
-      throw svelteError(500, `Failed to update chat: ${message}`);
-    }
-  },
-);
-
 export const DELETE: RequestHandler = withErrorHandling(async ({ params }) => {
-  if (!params.id) {
-    throw svelteError(400, "Chat ID parameter is missing");
+  const success = await idbService?.deleteChat(params.id);
+  if (!success) {
+    return json({ error: 'Failed to delete chat' }, { status: 500 });
   }
-  const chatId = validateUuidParam(params.id);
+  return json({ success: true }, { status: 200 });
+});
 
-  if (!chatId) {
-    throw svelteError(400, "Invalid chat ID format");
+export const PUT: RequestHandler = withErrorHandling(async ({ request, params }) => {
+  const updatedChat = await request.json();
+  if (!updatedChat || updatedChat.id !== params.id) {
+    return json({ error: 'Invalid chat data or ID mismatch' }, { status: 400 });
   }
-
-  try {
-    const existingChat = await ChatService.getChatById(chatId);
-    if (!existingChat) {
-      throw svelteError(404, "Chat not found");
-    }
-
-    await ChatService.deleteChat(chatId);
-
-    return new Response(null, { status: 204 });
-  } catch (err) {
-    console.error(`Error deleting chat ${chatId}:`, err);
-    const message = err instanceof Error ? err.message : "Unknown error";
-    throw svelteError(500, `Failed to delete chat: ${message}`);
+  const savedId = await idbService?.saveChat(updatedChat);
+  if (!savedId) {
+    return json({ error: 'Failed to update chat' }, { status: 500 });
   }
+  return json(updatedChat, { status: 200 });
 });

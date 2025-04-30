@@ -8,12 +8,15 @@
  * @param paramName Name of the parameter to extract
  * @returns The ID if valid, null otherwise
  */
-export function extractValidId(params: Record<string, string>, paramName: string = 'id'): string | null {
-  if (!params || typeof params !== 'object') return null;
-  
+export function extractValidId(
+  params: Partial<Record<string, string>>,
+  paramName: string = "id",
+): string | null {
+  if (!params || typeof params !== "object") return null;
+
   const id = params[paramName];
-  if (!id || typeof id !== 'string' || id.trim() === '') return null;
-  
+  if (!id || typeof id !== "string" || id.trim() === "") return null;
+
   return id.trim();
 }
 
@@ -23,10 +26,11 @@ export function extractValidId(params: Record<string, string>, paramName: string
  * @returns True if valid UUID, false otherwise
  */
 export function isValidUuid(id: string): boolean {
-  if (!id || typeof id !== 'string') return false;
-  
+  if (!id || typeof id !== "string") return false;
+
   // Simple UUID validation regex
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   return uuidRegex.test(id);
 }
 
@@ -36,7 +40,14 @@ export function isValidUuid(id: string): boolean {
  * @param paramName Name of the parameter to validate
  * @returns The valid UUID if valid, null otherwise
  */
-export function validateUuidParam(params: Record<string, string>, paramName: string = 'id'): string | null {
-  const id = extractValidId(params, paramName);
-  return id && isValidUuid(id) ? id : null;
+export function validateUuidParam(
+  params: Partial<Record<string, string>>,
+  paramName: string = "id",
+): string | null {
+  if (!params || typeof params[paramName] !== "string") return null;
+
+  const id = params[paramName] as string;
+  if (!id || id.trim() === "") return null;
+
+  return isValidUuid(id.trim()) ? id.trim() : null;
 }

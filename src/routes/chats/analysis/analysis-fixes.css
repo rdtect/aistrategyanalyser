@@ -1,0 +1,26 @@
+/* CSS fixes for analysis page */
+
+/* Fix for -webkit-text-size-adjust error on line 205 */
+html,
+:host {
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Fix for border-top-width error on line 638 */
+:is(.prose)
+  :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  border-top-width: 1px;
+}
+
+/* Fix for webkit-appearance error on line 1556 */
+:is(.progress)::-webkit-progress-bar {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Fix for unexpected 'a' declaration on line 1965 */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}

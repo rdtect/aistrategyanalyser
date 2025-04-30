@@ -119,3 +119,33 @@ export function formatMessageTime(timestamp: string): string {
     return "";
   }
 }
+
+/**
+ * Format date for display in chat lists/etc.
+ * Provides relative terms like "Yesterday", "Mon", etc.
+ */
+export function formatTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === now.toDateString()) {
+    return date.toLocaleTimeString(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday";
+  }
+  // Check if it was within the last 7 days (but not today or yesterday)
+  if (now.getTime() - date.getTime() < 7 * 24 * 60 * 60 * 1000) {
+    return date.toLocaleDateString(undefined, { weekday: "short" });
+  }
+  // Older than a week
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}

@@ -1,5 +1,6 @@
 import { mdsvex } from "mdsvex";
 import adapter from "@sveltejs/adapter-cloudflare";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -22,7 +23,7 @@ const config = {
     },
   },
 
-  preprocess: [mdsvex()],
+  preprocess: [mdsvex(), svelte()],
   extensions: [".svelte", ".svx"],
 };
 

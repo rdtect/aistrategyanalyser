@@ -1,22 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import crypto from "crypto";
-import { supabase } from "$lib/server/db/supabase";
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const { data, error } = await supabase
-    .from("chat_metadata")
-    .select("*")
-    .order("updated_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching chat metadata:", error);
-  }
-
-  return {
-    chatMetadata: data ?? [],
-  };
-};
 
 export const actions: Actions = {
   createChat: async ({ request }) => {

@@ -45,7 +45,6 @@ declare module '$env/static/private' {
 	export const TMPDIR: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const ZDOTDIR: string;
-	export const CURSOR_TRACE_ID: string;
 	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const MallocNanoZone: string;
 	export const AWS_CA_BUNDLE: string;
@@ -58,6 +57,7 @@ declare module '$env/static/private' {
 	export const COMMAND_MODE: string;
 	export const REQUESTS_CA_BUNDLE: string;
 	export const SSH_AUTH_SOCK: string;
+	export const VSCODE_PROFILE_INITIALIZED: string;
 	export const __CF_USER_TEXT_ENCODING: string;
 	export const npm_execpath: string;
 	export const VIRTUAL_ENV_DISABLE_PROMPT: string;
@@ -95,6 +95,7 @@ declare module '$env/static/private' {
 	export const NODE_EXTRA_CA_CERTS: string;
 	export const npm_node_execpath: string;
 	export const COLORTERM: string;
+	export const NODE_ENV: string;
 }
 
 /**
@@ -146,7 +147,6 @@ declare module '$env/dynamic/private' {
 		TMPDIR: string;
 		TERM_PROGRAM_VERSION: string;
 		ZDOTDIR: string;
-		CURSOR_TRACE_ID: string;
 		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		MallocNanoZone: string;
 		AWS_CA_BUNDLE: string;
@@ -159,6 +159,7 @@ declare module '$env/dynamic/private' {
 		COMMAND_MODE: string;
 		REQUESTS_CA_BUNDLE: string;
 		SSH_AUTH_SOCK: string;
+		VSCODE_PROFILE_INITIALIZED: string;
 		__CF_USER_TEXT_ENCODING: string;
 		npm_execpath: string;
 		VIRTUAL_ENV_DISABLE_PROMPT: string;
@@ -196,6 +197,7 @@ declare module '$env/dynamic/private' {
 		NODE_EXTRA_CA_CERTS: string;
 		npm_node_execpath: string;
 		COLORTERM: string;
+		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

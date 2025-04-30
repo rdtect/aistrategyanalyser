@@ -108,3 +108,22 @@ body {
   --color-tertiary-500-rgb: 168, 85, 247;
   --color-surface-500-rgb: 107, 114, 128;
 }
+
+/* Custom Glass Utilities */
+@layer utilities {
+  .glass-surface {
+    /* More transparent glass effect: 20% opacity, no border/rounding by default */
+    @apply bg-primary-100/20 dark:bg-primary-900/20 shadow-xl backdrop-blur-md;
+  }
+
+  .glass-warning {
+    /* Warning variant - keeping /80 opacity for better contrast maybe? Adjust if needed */
+    @apply bg-warning-100-900/30 border-warning-300-700/30 rounded-lg border shadow-lg backdrop-blur-md;
+    @apply text-warning-800 dark:text-warning-200;
+  }
+
+  .glass-primary {
+    @apply bg-primary-100/20 dark:bg-primary-900/20 border-primary-300-700/20 rounded-lg border shadow-lg backdrop-blur-md;
+    @apply text-primary-800 dark:text-primary-200;
+  }
+}

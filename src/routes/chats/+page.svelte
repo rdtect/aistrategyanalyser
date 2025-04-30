@@ -6,19 +6,19 @@
 -->
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { onMount } from 'svelte';
+
   
   // Redirect to new chat page
   function createNewAnalysis() {
-    goto('/chats/new');
+    goto('/chats/analysis');
   }
 </script>
 
-<div class="flex items-center justify-center h-full p-8">
+<div class="flex items-center justify-center h-full p-8  ">
   <div class="max-w-lg w-full text-center">
     <h1 class="text-2xl font-bold mb-4">AI Strategy Analyzer</h1>
     
-    <div class="p-8 rounded-lg bg-surface-100-800-token/50 border border-surface-500/20">
+    <div class="p-8 rounded-lg glass-surface border border-surface-500/20">
       <p class="mb-4 text-lg">Create a new analysis to get started</p>
       
       <button
