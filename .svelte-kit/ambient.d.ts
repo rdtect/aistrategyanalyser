@@ -95,7 +95,6 @@ declare module '$env/static/private' {
 	export const NODE_EXTRA_CA_CERTS: string;
 	export const npm_node_execpath: string;
 	export const COLORTERM: string;
-	export const NODE_ENV: string;
 }
 
 /**
@@ -197,7 +196,6 @@ declare module '$env/dynamic/private' {
 		NODE_EXTRA_CA_CERTS: string;
 		npm_node_execpath: string;
 		COLORTERM: string;
-		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

@@ -5,7 +5,7 @@ import type { Chat, Message } from "$lib/types";
 import { idbService } from "$lib/services/IDBService";
 import { browser } from "$app/environment";
 import { SvelteMap } from "svelte/reactivity";
-import { generateAIResponse } from '../../../lib/services/OpenAIService';
+import { generateAIResponse } from "$lib/services/OpenAIService";
 
 // Minimal ChatManager singleton for POC
 class ChatManager {

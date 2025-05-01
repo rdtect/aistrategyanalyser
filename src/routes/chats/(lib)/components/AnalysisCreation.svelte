@@ -50,7 +50,7 @@
 
   // System prompt state for the analysis (default to average)
   let systemPrompt = $state<string>("");
-  import { getAverageSystemPrompt } from '../utils/promptUtils/index';
+  import { getAverageSystemPrompt } from '../../../../lib/utils/promptUtils/index';
   $effect(() => {
     if (!systemPrompt) {
       getAverageSystemPrompt().then(prompt => { systemPrompt = prompt; });

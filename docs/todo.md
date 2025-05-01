@@ -55,7 +55,7 @@ After reviewing your codebase, I can identify these architectural patterns:
 - [ ] Move existing state from components to dedicated state modules
 
 ### 1.2 Create Core State Modules
-- [ ] `chatState.svelte.ts` - Chat data and operations
+- [x] `chatState.svelte.ts` - Chat data and operations
   ```typescript
   // Key exports
   export const chats = $state<Map<string, Chat>>(new Map());
@@ -183,7 +183,7 @@ After reviewing your codebase, I can identify these architectural patterns:
 
 ### 4.2 Refactor Analysis Processing
 - [ ] Update `triggerAutomatedAnalysis` to use state modules
-  - Currently uses `openAIService` directly - should use state module
+  - Currently uses `openAIService` directly - should instead use state module
   - Add proper progress tracking and error handling
 
 ## Phase 5: UI Enhancement
