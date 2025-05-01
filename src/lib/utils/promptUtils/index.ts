@@ -1,5 +1,5 @@
 // Utility to extract and construct a system prompt from category/question prompt data
-import categoryQuestionPrompts from '../../data/category_question_prompts.json';
+import categoryQuestionPrompts from '../../../routes/chats/(lib)/data/category_question_prompts.json';
 
 export type PromptSection = 'Role Definition' | 'Task Description' | 'Output Format' | 'Style Guidelines' | 'Constraints' | 'Interactivity';
 

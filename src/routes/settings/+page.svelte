@@ -20,7 +20,6 @@
     idbService?.getSetting?.('openaiApiKey').then(v => { if (v) openaiApiKey = v; });
   });
 
-  // Save settings
   async function saveSettings() {
     if (!browser) return;
     try {

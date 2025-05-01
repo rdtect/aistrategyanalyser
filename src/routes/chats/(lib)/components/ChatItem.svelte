@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Chat } from "$lib/types";
   import { formatTime } from "$lib/utils/formatters";
+  import { chatManager } from '../ChatManager.svelte.ts';
 
   // Icons
   import IconTrash from "@lucide/svelte/icons/trash-2";

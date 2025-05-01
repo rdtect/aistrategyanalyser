@@ -4,6 +4,7 @@
   import IconPlus from "@lucide/svelte/icons/plus";
   import IconSearch from "@lucide/svelte/icons/search";
   import IconSettings from "@lucide/svelte/icons/settings";
+  import { chatManager } from '../ChatManager.svelte.ts';
 
   // PROPS: Accept external props for chats, activeChatId, and handlers
   let { chats, activeChatId, onDeleteChat, onSelectChat, onCreateChat } = $props<{

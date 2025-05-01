@@ -19,11 +19,7 @@
   import IconChevronLeft from "@lucide/svelte/icons/chevron-left"; // Assuming icon needed for toggle
 
   // Props (children and data from SvelteKit)
-  let { children, data } = $props<{
-    children: any;
-    // Data now only contains server-loaded items
-    data: { available_models: any[] };
-  }>();
+  let { children } = $props();
 
   // Create a toaster instance
   const toaster = createToaster();
@@ -44,8 +40,6 @@
   const chatInitError = $derived(chatManager.error);
   const activeChat = $derived(chatManager.activeChat);
   const title = $derived(activeChat?.name || "Start a New Analysis");
-
-  // Add a derived value for chatList
   const chatList = $derived(chatManager.chatList);
 
   // --- Refined Effect for automatic collapse on mobile ---

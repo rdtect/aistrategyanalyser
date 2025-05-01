@@ -2,7 +2,7 @@
   import { Accordion } from '@skeletonlabs/skeleton-svelte';
   import type { ChatContext } from "$lib/types";
   import type { Question } from '../../data/category_question_prompts';
-  import { getSystemPromptFromQuestion } from '../utils/promptUtils/index';
+  import * as promptUtils from '$lib/utils/promptUtils/index.ts';
 
   // Icons used in this step
   import IconLightbulb from '@lucide/svelte/icons/lightbulb';
@@ -56,7 +56,7 @@
       const [selectedId] = selected;
       const category = categoryList.find((cat: CategoryListItem) => cat.questions.some((q: Question) => q.id === selectedId));
       if (category) {
-        const prompt = getSystemPromptFromQuestion(category.name, selectedId);
+        const prompt = promptUtils.getSystemPromptFromQuestion(category.name, selectedId);
         onSystemPromptChange?.(prompt);
       }
     }

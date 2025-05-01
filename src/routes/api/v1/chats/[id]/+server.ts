@@ -13,7 +13,8 @@ import { validateUuidParam } from "$lib/utils/urlUtils";
 type Params = { id: string };
 
 export const GET: RequestHandler = withErrorHandling(async ({ params }) => {
-  const chat = await idbService?.getChat(params.id);
+  const safeId = params.id ?? "";
+  const chat = await idbService?.getChat(safeId);
   if (!chat) {
     return json({ error: 'Chat not found' }, { status: 404 });
   }
@@ -21,7 +22,8 @@ export const GET: RequestHandler = withErrorHandling(async ({ params }) => {
 });
 
 export const DELETE: RequestHandler = withErrorHandling(async ({ params }) => {
-  const success = await idbService?.deleteChat(params.id);
+  const safeId = params.id ?? "";
+  const success = await idbService?.deleteChat(safeId);
   if (!success) {
     return json({ error: 'Failed to delete chat' }, { status: 500 });
   }
@@ -29,8 +31,9 @@ export const DELETE: RequestHandler = withErrorHandling(async ({ params }) => {
 });
 
 export const PUT: RequestHandler = withErrorHandling(async ({ request, params }) => {
+  const safeId = params.id ?? "";
   const updatedChat = await request.json();
-  if (!updatedChat || updatedChat.id !== params.id) {
+  if (!updatedChat || updatedChat.id !== safeId) {
     return json({ error: 'Invalid chat data or ID mismatch' }, { status: 400 });
   }
   const savedId = await idbService?.saveChat(updatedChat);
