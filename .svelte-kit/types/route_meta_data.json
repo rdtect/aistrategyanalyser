@@ -1,0 +1,42 @@
+{
+	"/": [
+		"src/routes/+page.server.ts"
+	],
+	"/api": [
+		"src/routes/api/+server.ts"
+	],
+	"/api/v1/chats": [
+		"src/routes/api/v1/chats/+server.ts"
+	],
+	"/api/v1/chats/[id]": [
+		"src/routes/api/v1/chats/[id]/+server.ts"
+	],
+	"/api/v1/health": [
+		"src/routes/api/v1/health/+server.ts"
+	],
+	"/api/v1/models": [
+		"src/routes/api/v1/models/+server.ts"
+	],
+	"/api/v1/openai": [
+		"src/routes/api/v1/openai/+server.ts"
+	],
+	"/chats": [
+		"src/routes/chats/+page.server.ts",
+		"src/routes/chats/+layout.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/analysis": [
+		"src/routes/chats/analysis/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/[id]": [
+		"src/routes/chats/[id]/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/chats/[id]/export": [
+		"src/routes/chats/[id]/export/+page.ts",
+		"src/routes/chats/[id]/export/+page.server.ts",
+		"src/routes/chats/+layout.server.ts"
+	],
+	"/settings": []
+}
