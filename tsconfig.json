@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "allowArbitraryExtensions": true,
-    "target": "ES2024",
+    "target": "ESNext",
     "useDefineForClassFields": true
   }
   // Path aliases are handled by https://svelte.dev/docs/kit/configuration#alias
