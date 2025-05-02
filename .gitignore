@@ -1,6 +1,7 @@
 # SvelteKit build output
 /build
 /.svelte-kit
+.svelte-kit/*
 /package
 
 # Node modules
@@ -53,3 +54,5 @@ vite.config.ts.timestamp-*
 
 .idea
 src.bak
+bun.lock
+

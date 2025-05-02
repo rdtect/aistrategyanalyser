@@ -8,6 +8,7 @@
   import { toaster } from '$lib/components/toaster-svelte';
   import { chatManager } from '../chats/(lib)/ChatManager.svelte.ts';
   import { idbService } from '$lib/services/IDBService';
+  import { onMount } from "svelte";
 
   // Settings state
   let showApiKey = $state(false);
@@ -15,10 +16,12 @@
   let openaiApiKey = $state("");
 
   // Load persisted settings on mount
-  $effect(() => {
-    globalSystemPrompt = chatManager.systemPrompt;
-    idbService?.getSetting?.('openaiApiKey').then(v => { if (v) openaiApiKey = v; });
+  onMount(() => {
+    // Coalesce null to empty string to satisfy string type
+    globalSystemPrompt = chatManager.systemPrompt ?? "";
+    idbService?.getSetting('openaiApiKey').then(v => { if (v) openaiApiKey = v; });
   });
+
 
   async function saveSettings() {
     if (!browser) return;
